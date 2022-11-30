@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-11-30 14:31:22
+ * @LastEditTime: 2022-11-30 14:56:23
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description: 
  * 
@@ -19,7 +19,16 @@
 class SsTable {
 public:
     SsTable(std::string _filePath, int _partitionSize){}
-    static SsTable createFromMemTable(std::string _filePath, int _partitionSize, MemTable* memtable){}
+    /**
+     * @description: to flush memtable to sstable
+     * @param {string} _filePath
+     * @param {int} _partitionSize
+     * @param {MemTable*} memtable
+     * @return {*} the pointer to SsTable
+     */
+    static SsTable* createFromMemTable(std::string _filePath, int _partitionSize, MemTable* memtable){
+        
+    }
     static SsTable createFromFile(std::string _filePath){}
     Command query(std::string key){}
 

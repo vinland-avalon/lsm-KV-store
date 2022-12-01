@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:12:10
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-01 01:21:28
+ * @LastEditTime: 2022-12-01 01:33:34
  * @FilePath: /lsm-KV-store/command/command.cpp
  * @Description: 
  * 
@@ -21,7 +21,7 @@ public:
         return this->key;
     };
     virtual json toJSON() = 0;
-private:
+protected:
     std::string type;
     std::string key;
 };
@@ -31,7 +31,11 @@ public:
     setCommand(std::string _type, std::string _key, std::string _value):Command(_type, _key), value(_value){}
     setCommand();
     json toJSON(){
-        
+        json record;
+        record["key"]=key;
+        record["type"]=type;
+        record["value"]=value;
+        return record;
     }
 private:
     std::string value;
@@ -40,4 +44,10 @@ private:
 class rmCommand:public Command{
 public:
     rmCommand(std::string _type, std::string _key):Command(_type, _key){}
+    json toJSON(){
+        json record;
+        record["key"]=key;
+        record["type"]=type;
+        return record;
+    }
 };

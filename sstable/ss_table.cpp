@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-11-30 22:11:59
+ * @LastEditTime: 2022-11-30 22:18:55
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description:
  *
@@ -24,7 +24,7 @@ class SsTable {
         this->tableMetaInfo = new TableMetaInfo();
         this->tableMetaInfo->setPartitionSize(_partitionSize);
         this->filePath = _filePath;
-        this->sparseIndex = new std::map<std::string, std::pair<long, long>>();
+        this->sparseIndex = new std::multimap<std::string, std::pair<long, long>>();
         std::fstream file;
         file.open(_filePath);
         file.seekp(0);
@@ -90,6 +90,6 @@ class SsTable {
     TableMetaInfo *tableMetaInfo;
     std::fstream tableFile;
     // sparseIndex:{ key: {start, len}}
-    std::map<std::string, std::pair<long, long>>* sparseIndex;
+    std::multimap<std::string, std::pair<long, long>>* sparseIndex;
     std::string filePath;
 };

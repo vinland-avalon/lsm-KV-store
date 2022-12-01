@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 12:10:48
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-11-30 21:22:16
+ * @LastEditTime: 2022-11-30 21:35:19
  * @FilePath: /lsm-KV-store/sstable/table_meta_info.cpp
  * @Description: 
  * 
@@ -18,13 +18,18 @@ private:
     long indexStart;
     long indexLen;
     long partitionSize;
+
+
 public:
     void writeToFile(std::fstream *file){}
     static TableMetaInfo readFromFile(std::fstream* file){}
     TableMetaInfo(std::fstream* file){}
     TableMetaInfo(){}
-    long getPartitionSize(){
+    long getPartitionSize() {
         return this->partitionSize;
+    }
+    void setPartitionSize(long partitionSize) {
+        this->partitionSize = partitionSize;
     }
     long getDataStart() {
         return this->dataStart;

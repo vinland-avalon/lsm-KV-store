@@ -65,5 +65,6 @@
         "ranges": "cpp",
         "sstream": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve"
 }

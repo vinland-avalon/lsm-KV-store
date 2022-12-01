@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-11-30 22:18:55
+ * @LastEditTime: 2022-12-01 00:43:19
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description:
  *
@@ -74,9 +74,33 @@ class SsTable {
 
         return this;
     }
-    SsTable *initFromFile(std::string _filePath) {}
+    /**
+     * @description: from SSD, restore ssTable to memory
+     * @description: only load metadata and sparse index
+     * @param {string} _filePath
+     * @return {*}
+     */
+    SsTable *initFromFile(std::string _filePath) {
+        // load metadata
+        this->tableMetaInfo = new TableMetaInfo();
+        tableMetaInfo->readFromFile(&(this->tableFile));
+        // load sparse index
+        // std::string tmpRecords;
+        json tmpJSONRecords;
+        (this->tableFile).read((char*)&tmpJSONRecords, sizeof(long));
+        sparseIndex->clear();
+        for (json::iterator it = tmpJSONRecords.begin(); it != tmpJSONRecords.end(); ++it) {
+            std::cout << it.key() << " : " << it.value() << "\n";
+            sparseIndex->emplace(it.key(), std::pair<long,long>(it.value().at(0),it.value().at(1)));
+        }
+    }
     Command query(std::string key) {}
     // void writeRecords(json records) {}
+    /**
+     * @description: write records to SSD, clear records in JSON, and then append sparse index entry to this instance
+     * @param {json} *records
+     * @return {*}
+     */
     void writeToSSDandClearAndAppendSparseIndex(json *records) {
         std::string key = records->at(0)["key"];
         long start = tableFile.tellp();

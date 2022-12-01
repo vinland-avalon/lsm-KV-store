@@ -2,13 +2,15 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:12:10
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-11-30 14:30:38
+ * @LastEditTime: 2022-11-30 20:35:03
  * @FilePath: /lsm-KV-store/command/command.cpp
  * @Description: 
  * 
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved. 
  */
+#include <nlohmann/json.hpp>
 #include <string>
+using json = nlohmann::json;
 
 // enum enumCommand {"RM","GET","SET"};
 
@@ -18,6 +20,7 @@ public:
     std::string getKey(){
         return this->key;
     };
+    json toJSON();
 private:
     std::string type;
     std::string key;

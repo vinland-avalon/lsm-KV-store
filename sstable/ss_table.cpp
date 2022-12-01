@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-01 01:21:57
+ * @LastEditTime: 2022-12-01 01:40:42
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description:
  *
@@ -87,14 +87,14 @@ class SsTable {
         // load sparse index
         // std::string tmpRecords;
         json tmpJSONRecords;
-        (this->tableFile).read((char*)&tmpJSONRecords, sizeof(long));
+        (this->tableFile).read((char *)&tmpJSONRecords, sizeof(long));
         sparseIndex->clear();
         for (json::iterator it = tmpJSONRecords.begin(); it != tmpJSONRecords.end(); ++it) {
             std::cout << it.key() << " : " << it.value() << "\n";
-            sparseIndex->emplace(it.key(), std::pair<long,long>(it.value().at(0),it.value().at(1)));
+            sparseIndex->emplace(it.key(), std::pair<long, long>(it.value().at(0), it.value().at(1)));
         }
     }
-    Command* query(std::string key) {}
+    Command *query(std::string key) {}
     // void writeRecords(json records) {}
     /**
      * @description: write records to SSD, clear records in JSON, and then append sparse index entry to this instance
@@ -107,13 +107,13 @@ class SsTable {
         tableFile << records;
         records->clear();
         long len = tableFile.tellp() - start;
-        sparseIndex->emplace(key, std::pair<long,long>(start,len));
+        sparseIndex->emplace(key, std::pair<long, long>(start, len));
     }
 
   private:
     TableMetaInfo *tableMetaInfo;
     std::fstream tableFile;
     // sparseIndex:{ key: {start, len}}
-    std::multimap<std::string, std::pair<long, long>>* sparseIndex;
+    std::multimap<std::string, std::pair<long, long>> *sparseIndex;
     std::string filePath;
 };

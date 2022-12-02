@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-01 00:44:43
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 16:10:11
+ * @LastEditTime: 2022-12-02 21:24:08
  * @FilePath: /lsm-KV-store/sstable/test_and_bin/ss_table_test.cpp
  * @Description:
  *
@@ -21,7 +21,9 @@ int main() {
     // memtable
     MemTable *memTable = new RedBlackTreeMemTable();
     Command *command = new SetCommand("SET", "key1", "100");
+    Command *command2 = new SetCommand("SET", "key2", "101");
     memTable->set("key1", command);
+    memTable->set("key2", command2);
     std::cout << memTable->get("key1")->toJSON() << std::endl;
     std::cout << memTable->curr()->toJSON() << std::endl;
     memTable->next();

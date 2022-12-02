@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:53:41
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 12:01:14
+ * @LastEditTime: 2022-12-02 22:00:13
  * @FilePath: /lsm-KV-store/mem_table/red_black_tree_impl.cpp
  * @Description:
  *
@@ -46,6 +46,8 @@ class RedBlackTreeMemTable : public MemTable {
     };
 
   private:
+    // after C++11, when inserting records with the same key, values are ordered by their inserting time
+    // so we have to inverse records for whose with the same key
     std::multimap<std::string, Command *> *table;
     std::multimap<std::string, Command *>::iterator it;
 };

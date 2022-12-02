@@ -2,14 +2,14 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-01 01:40:42
+ * @LastEditTime: 2022-12-02 16:16:11
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
-#include "../command/command.cpp"
-#include "../mem_table/mem_table.cpp"
+#include "../command/command.h"
+#include "../mem_table/mem_table.h"
 #include "./table_meta_info.cpp"
 #include <fstream>
 #include <map>
@@ -25,9 +25,15 @@ class SsTable {
         this->tableMetaInfo->setPartitionSize(_partitionSize);
         this->filePath = _filePath;
         this->sparseIndex = new std::multimap<std::string, std::pair<long, long>>();
-        std::fstream file;
-        file.open(_filePath);
-        file.seekp(0);
+        tableFile.open(_filePath, std::ios::in | std::ios::out | std::ios::binary);
+        if (!tableFile.is_open()) {
+            std::cout << filePath << ": fail to open" << std::endl;
+        }
+        tableFile.seekp(0);
+        tableFile.seekg(0);
+    }
+    ~SsTable() {
+        tableFile.close();
     }
     // todo: single instance mode
     TableMetaInfo *getTableMetaInfo() { return this->tableMetaInfo; }
@@ -39,18 +45,17 @@ class SsTable {
      * @param {MemTable*} memtable
      * @return {*} the pointer to SsTable
      */
-    SsTable *initFromMemTable(std::string _filePath, int _partitionSize, MemTable *memtable) {
+    SsTable *initFromMemTable(MemTable *memtable) {
         // calculate metadata
         tableMetaInfo->setDataStart(tableFile.tellp());
 
         // flush to SSD
         json records = json({});
         memtable->reachBegin();
-        while (!(memtable->curr())) {
-            // key1: {key: "key1",type: "SET", value: "100"}
-            json keyedRecord;
-            keyedRecord[memtable->curr()->getKey()] = memtable->curr()->toJSON();
-            records.push_back(keyedRecord);
+        while (memtable->curr()) {
+            records[memtable->curr()->getKey()] = memtable->curr()->toJSON();
+
+            std::cout << "[initFromMemTable] get record: " << records << std::endl;
             memtable->next();
             if (records.size() >= tableMetaInfo->getPartitionSize()) {
                 writeToSSDandClearAndAppendSparseIndex(&records);
@@ -66,11 +71,19 @@ class SsTable {
 
         // save sparse index and calculate metadata
         tableMetaInfo->setIndexStart(tableFile.tellp());
-        tableFile << json::parse(sparseIndex);
+        json sparseIndexJSON;
+        for (auto singleSparkIndex : (*sparseIndex)) {
+            sparseIndexJSON[singleSparkIndex.first] = (json{singleSparkIndex.second.first, singleSparkIndex.second.second});
+        }
+        std::string sparseIndexString = sparseIndexJSON.dump();
+        tableFile.write(sparseIndexString.c_str(), sparseIndexString.size() + 1);
+        // tableFile << sparseIndex;
         tableMetaInfo->setIndexLen(tableFile.tellp() - tableMetaInfo->getIndexStart());
 
         // save metadata
         tableMetaInfo->writeToFile(&tableFile);
+
+        tableFile.flush();
 
         return this;
     }
@@ -80,21 +93,31 @@ class SsTable {
      * @param {string} _filePath
      * @return {*}
      */
-    SsTable *initFromFile(std::string _filePath) {
+    SsTable *initFromFile() {
         // load metadata
         this->tableMetaInfo = new TableMetaInfo();
         tableMetaInfo->readFromFile(&(this->tableFile));
+
         // load sparse index
-        // std::string tmpRecords;
-        json tmpJSONRecords;
-        (this->tableFile).read((char *)&tmpJSONRecords, sizeof(long));
-        sparseIndex->clear();
+        char buffer[1000];
+        tableFile.seekg(tableMetaInfo->getIndexStart());
+        tableFile.read(buffer, tableMetaInfo->getIndexLen());
+
+        std::string sparseIndexString = buffer;
+
+        // {"key1":[0,50]}
+        // std::cout << "lll" << sparseIndexString << std::endl;
+
+        json tmpJSONRecords = json::parse(sparseIndexString);
+
         for (json::iterator it = tmpJSONRecords.begin(); it != tmpJSONRecords.end(); ++it) {
-            std::cout << it.key() << " : " << it.value() << "\n";
+            std::cout << "[initFromFile] reload sparse index: " << it.key() << " : " << it.value() << "\n";
             sparseIndex->emplace(it.key(), std::pair<long, long>(it.value().at(0), it.value().at(1)));
         }
+
+        return this;
     }
-    Command *query(std::string key) {}
+    // Command *query(std::string key) {}
     // void writeRecords(json records) {}
     /**
      * @description: write records to SSD, clear records in JSON, and then append sparse index entry to this instance
@@ -102,9 +125,12 @@ class SsTable {
      * @return {*}
      */
     void writeToSSDandClearAndAppendSparseIndex(json *records) {
-        std::string key = records->at(0)["key"];
+        std::cout << "[writeToSSDandClearAndAppendSparseIndex] write records:" << *records << "to SSD" << std::endl;
+        std::string key = (*(records->begin()))["key"];
         long start = tableFile.tellp();
-        tableFile << records;
+        std::string recordsString = records->dump();
+        tableFile.write(recordsString.c_str(), recordsString.size() + 1);
+        // tableFile << records->dump();
         records->clear();
         long len = tableFile.tellp() - start;
         sparseIndex->emplace(key, std::pair<long, long>(start, len));

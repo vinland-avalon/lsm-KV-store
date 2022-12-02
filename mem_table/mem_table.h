@@ -2,13 +2,15 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:54:25
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-01 01:40:29
- * @FilePath: /lsm-KV-store/mem_table/mem_table.cpp
+ * @LastEditTime: 2022-12-02 11:52:47
+ * @FilePath: /lsm-KV-store/mem_table/mem_table.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
-#include "../command/command.cpp"
+#ifndef _Mem_Table_H_
+#define _Mem_Table_H_
+#include "../command/command.h"
 #include <string>
 
 // iterator
@@ -23,3 +25,5 @@ class MemTable {
     virtual Command *curr() = 0;
     virtual void next() = 0;
 };
+
+#endif 

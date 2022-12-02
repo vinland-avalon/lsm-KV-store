@@ -2,17 +2,21 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:12:10
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-01 01:38:55
- * @FilePath: /lsm-KV-store/command/command.cpp
+ * @LastEditTime: 2022-12-02 11:35:56
+ * @FilePath: /lsm-KV-store/command/command.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+#ifndef _Command_H_
+#define _Command_H_
+
 #include <nlohmann/json.hpp>
 #include <string>
 using json = nlohmann::json;
 
 // enum enumCommand {"RM","GET","SET"};
+
 
 class Command {
   public:
@@ -27,10 +31,10 @@ class Command {
     std::string key;
 };
 
-class setCommand : public Command {
+class SetCommand : public Command {
   public:
-    setCommand(std::string _type, std::string _key, std::string _value) : Command(_type, _key), value(_value) {}
-    setCommand();
+    SetCommand(std::string _type, std::string _key, std::string _value) : Command(_type, _key), value(_value) {}
+    SetCommand();
     json toJSON() {
         json record;
         record["key"] = key;
@@ -43,9 +47,9 @@ class setCommand : public Command {
     std::string value;
 };
 
-class rmCommand : public Command {
+class RmCommand : public Command {
   public:
-    rmCommand(std::string _type, std::string _key) : Command(_type, _key) {}
+    RmCommand(std::string _type, std::string _key) : Command(_type, _key) {}
     json toJSON() {
         json record;
         record["key"] = key;
@@ -53,3 +57,5 @@ class rmCommand : public Command {
         return record;
     }
 };
+
+#endif 

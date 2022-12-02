@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 12:10:48
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-01 01:40:47
+ * @LastEditTime: 2022-12-02 15:20:00
  * @FilePath: /lsm-KV-store/sstable/table_meta_info.cpp
  * @Description:
  *
@@ -33,6 +33,7 @@ class TableMetaInfo {
         (*file).write((const char *)&indexStart, sizeof(long));
         (*file).write((const char *)&indexLen, sizeof(long));
         (*file).write((const char *)&version, sizeof(long));
+        file->clear();
     }
     /**
      * @description: init a tableMetaInfo structure from file;

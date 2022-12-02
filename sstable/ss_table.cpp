@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 16:16:11
+ * @LastEditTime: 2022-12-02 23:04:00
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description:
  *
@@ -10,14 +10,15 @@
  */
 #include "../command/command.h"
 #include "../mem_table/mem_table.h"
+// #include "../utils/utils_command.h"
 #include "./table_meta_info.cpp"
 #include <fstream>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <string>
 using json = nlohmann::json;
-
 // data + sparse index + metainfo
+
 class SsTable {
   public:
     SsTable(std::string _filePath, int _partitionSize) {
@@ -37,6 +38,16 @@ class SsTable {
     }
     // todo: single instance mode
     TableMetaInfo *getTableMetaInfo() { return this->tableMetaInfo; }
+
+    Command *JSONtoCommand(json jCommand) {
+        Command *command = nullptr;
+        if (jCommand["type"] == "SET") {
+            command = new SetCommand("SET", jCommand["key"], jCommand["value"]);
+        } else if (jCommand["type"] == "RM") {
+            command = new RmCommand("RM", jCommand["key"]);
+        }
+        return command;
+    };
 
     /**
      * @description: init from memtable and flush memtable to sstable
@@ -117,7 +128,40 @@ class SsTable {
 
         return this;
     }
-    // Command *query(std::string key) {}
+    /**
+     * @description: get the most recently commmand of a key in this sstable;
+     * @discription: we will look up sparse index first, and then get target command in a specific block;
+     * @discriotion: it's lazy loading and thus reduce io;
+     * @param {string} key
+     * @return {*}
+     */
+    Command *query(std::string key) {
+        std::pair<long, long> lowerBoundBlock(-1, -1);
+        for (auto it = sparseIndex->begin(); it != sparseIndex->end(); it++) {
+            if (it->first <= key) {
+                lowerBoundBlock.first = it->second.first;
+                lowerBoundBlock.second = it->second.second;
+            }
+        }
+        if (lowerBoundBlock.first == -1)
+            return nullptr;
+
+        // load sparse index
+        char buffer[1000];
+        tableFile.seekg(lowerBoundBlock.first);
+        tableFile.read(buffer, lowerBoundBlock.second);
+        std::string blockString = buffer;
+        // {"key1":{"key":"key1","type":"SET","value":"100"}}{"key2":{"key":"key2","type":"SET","value":"101"}}
+        json blockJSON = json::parse(blockString);
+
+        for (json::iterator it = blockJSON.begin(); it != blockJSON.end(); ++it) {
+            std::cout << "[query] reload command in block: " << it.key() << " : " << it.value() << "\n";
+            if (it.key() == key) {
+                return JSONtoCommand(it.value());
+            }
+        }
+        return nullptr;
+    }
     // void writeRecords(json records) {}
     /**
      * @description: write records to SSD, clear records in JSON, and then append sparse index entry to this instance

@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-01 00:44:43
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 21:24:08
+ * @LastEditTime: 2022-12-02 22:46:41
  * @FilePath: /lsm-KV-store/sstable/test_and_bin/ss_table_test.cpp
  * @Description:
  *
@@ -35,9 +35,17 @@ int main() {
     ssTable->initFromMemTable(memTable);
 
     delete ssTable;
-    // {"key1":{"key":"key1","type":"SET","value":"100"}}{"key1":[0,50]}
+    // {"key1":{"key":"key1","type":"SET","value":"100"}}{"key2":{"key":"key2","type":"SET","value":"101"}}{"key1":[0,50]}
     ssTable = new SsTable("./sstable_1", 15);
     ssTable->initFromFile();
+    Command *commandValid = ssTable->query("key2");
+    if (command) {
+        std::cout << "[TEST: ss_table]1 pass:: get " << commandValid->toJSON() << std::endl;
+    }
+    Command *commandInvalid = ssTable->query("keyInvalid");
+    if (!commandInvalid) {
+        std::cout << "[TEST: ss_table]2 pass: command not exist" << std::endl;
+    }
 
     return 0;
 }

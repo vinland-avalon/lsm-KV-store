@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 10:30:28
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-03 23:33:25
+ * @LastEditTime: 2022-12-04 11:18:00
  * @FilePath: /lsm-KV-store/kv_store/lsm_kv_store.cpp
  * @Description:
  *
@@ -36,18 +36,24 @@ class LsmKvStore : public KvStore {
         }
         std::map<long, SsTable *> *ssTableMap = new std::map<long, SsTable *>();
         for (std::string filename : (*filesInDir)) {
-            // restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
-            if (filename == WAL_TMP) {
-                restoreFromWal(filename);
-            }
             if (endsWith(filename, TABLE_SUFFIX)) {
                 long time = stol(filename.substr(filename.size() - TABLE_SUFFIX.size()));
                 SsTable *ssTable = new SsTable(filename, 0);
                 ssTable->initFromFile();
                 ssTableMap->insert(std::make_pair(time, ssTable));
-            } else if (filename == WAL) {
-                walFile = filename;
-                restoreFromWal(filename);
+
+            // the latter is to restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
+            } else if (filename == WAL || filename == WAL_TMP) {
+                std::fstream *tmpFstream = new std::fstream;
+                tmpFstream->open(walFile, std::ios::in | std::ios::out | std::ios::binary);
+                if (!tmpFstream->is_open()) {
+                    std::cout << filename << ": fail to open" << std::endl;
+                }
+                if (filename == WAL) {
+                    this->walFile = filename;
+                    this->walFileStream = tmpFstream;
+                }
+                restoreFromWal(tmpFstream);
             }
         }
         for (auto it = ssTableMap->begin(); it != ssTableMap->end(); it++) {
@@ -69,8 +75,9 @@ class LsmKvStore : public KvStore {
     std::shared_mutex *rwlock;
     const int partitionSize;
     std::string walFile;
+    std::fstream *walFileStream;
 
-    void restoreFromWal(std::string filename);
+    void restoreFromWal(std::fstream *fileStream);
     void switchMemTable();
     void flushToSsTable();
 

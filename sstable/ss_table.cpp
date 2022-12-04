@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 23:04:00
+ * @LastEditTime: 2022-12-04 12:05:06
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description:
  *
@@ -10,7 +10,7 @@
  */
 #include "../command/command.h"
 #include "../mem_table/mem_table.h"
-// #include "../utils/utils_command.h"
+#include "../utils/utils_for_file_operation.h"
 #include "./table_meta_info.cpp"
 #include <fstream>
 #include <map>
@@ -87,7 +87,8 @@ class SsTable {
             sparseIndexJSON[singleSparkIndex.first] = (json{singleSparkIndex.second.first, singleSparkIndex.second.second});
         }
         std::string sparseIndexString = sparseIndexJSON.dump();
-        tableFile.write(sparseIndexString.c_str(), sparseIndexString.size() + 1);
+        writeStringToFile(sparseIndexString, &tableFile);
+        // tableFile.write(sparseIndexString.c_str(), sparseIndexString.size() + 1);
         // tableFile << sparseIndex;
         tableMetaInfo->setIndexLen(tableFile.tellp() - tableMetaInfo->getIndexStart());
 
@@ -173,7 +174,8 @@ class SsTable {
         std::string key = (*(records->begin()))["key"];
         long start = tableFile.tellp();
         std::string recordsString = records->dump();
-        tableFile.write(recordsString.c_str(), recordsString.size() + 1);
+        writeStringToFile(recordsString, &tableFile);
+        // tableFile.write(recordsString.c_str(), recordsString.size() + 1);
         // tableFile << records->dump();
         records->clear();
         long len = tableFile.tellp() - start;

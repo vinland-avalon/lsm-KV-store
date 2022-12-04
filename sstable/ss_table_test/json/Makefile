@@ -60,7 +60,7 @@ EQUALS = =
 CMAKE_SOURCE_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin
+CMAKE_BINARY_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,14 +87,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/json//CMakeFiles/progress.marks
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles 0
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/json//CMakeFiles/progress.marks
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/clean
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/clean
 .PHONY : clean
 
 # The main clean target
@@ -103,17 +103,17 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/preinstall
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/preinstall
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 json/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Help Target
@@ -135,6 +135,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

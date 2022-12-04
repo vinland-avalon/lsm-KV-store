@@ -60,7 +60,7 @@ EQUALS = =
 CMAKE_SOURCE_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin
+CMAKE_BINARY_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -128,6 +128,30 @@ Test_Ss_Table: cmake_check_build_system
 Test_Ss_Table/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Test_Ss_Table.dir/build.make CMakeFiles/Test_Ss_Table.dir/build
 .PHONY : Test_Ss_Table/fast
+
+home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.o: home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o
+.PHONY : home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.o
+
+# target to build an object file
+home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Test_Ss_Table.dir/build.make CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o
+.PHONY : home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o
+
+home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.i: home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.i
+.PHONY : home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.i
+
+# target to preprocess a source file
+home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Test_Ss_Table.dir/build.make CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.i
+.PHONY : home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.i
+
+home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.s: home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.s
+.PHONY : home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.s
+
+# target to generate assembly for a file
+home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Test_Ss_Table.dir/build.make CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.s
+.PHONY : home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.s
 
 ss_table.o: ss_table.cpp.o
 .PHONY : ss_table.o
@@ -210,6 +234,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Test_Ss_Table"
+	@echo "... home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.o"
+	@echo "... home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.i"
+	@echo "... home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.s"
 	@echo "... ss_table.o"
 	@echo "... ss_table.i"
 	@echo "... ss_table.s"

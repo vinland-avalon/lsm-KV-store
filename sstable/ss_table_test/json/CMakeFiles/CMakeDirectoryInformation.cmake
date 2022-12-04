@@ -3,7 +3,7 @@
 
 # Relative path conversion top directories.
 set(CMAKE_RELATIVE_PATH_TOP_SOURCE "/home/bohan_wu_ubuntu/lsm-KV-store/sstable")
-set(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin")
+set(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test")
 
 # Force unix paths in dependencies.
 set(CMAKE_FORCE_UNIX_PATHS 1)

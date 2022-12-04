@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-03 22:18:01
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-03 23:08:47
+ * @LastEditTime: 2022-12-04 11:24:44
  * @FilePath: /lsm-KV-store/utils/utils_for_file_operation.cpp
  * @Description:
  *
@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+#include <fstream>
 
 /**
  * @description: get filenames in a directory, except for . and ..
@@ -61,11 +62,15 @@ std::vector<std::string> *getFilenamesInDirectory(const char *dir_name) {
 }
 
 /**
- * @description: 
+ * @description:
  * @param {string} s
  * @param {string} sub
  * @return {*}
  */
 bool endsWith(std::string s, std::string sub) {
     return s.rfind(sub) == (s.length() - sub.length()) ? true : false;
+}
+
+void writeStringToFile(std::string s, std::fstream *f) {
+    f->write(s.c_str(), s.size() + 1);
 }

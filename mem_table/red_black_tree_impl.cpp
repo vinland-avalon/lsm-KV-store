@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:53:41
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 12:01:14
+ * @LastEditTime: 2022-12-05 22:18:55
  * @FilePath: /lsm-KV-store/mem_table/red_black_tree_impl.cpp
  * @Description:
  *
@@ -44,6 +44,9 @@ class RedBlackTreeMemTable : public MemTable {
     void next() {
         it++;
     };
+    long size() {
+        return table->size();
+    }
 
   private:
     std::multimap<std::string, Command *> *table;

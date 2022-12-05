@@ -2,16 +2,18 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-01 00:44:43
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-03 15:01:45
- * @FilePath: /lsm-KV-store/sstable/test_and_bin/ss_table_test.cpp
+ * @LastEditTime: 2022-12-04 12:06:03
+ * @FilePath: /lsm-KV-store/sstable/ss_table_test/ss_table_test.cpp
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+#include "../../utils/utils_for_file_operation.h"
 #include "../../mem_table/red_black_tree_impl.cpp"
 #include "../ss_table.cpp"
 #include <iostream>
 
+// cmake ..
 // cmake --build .
 // ./Test_Ss_Table
 // exe: Test_Ss_Table

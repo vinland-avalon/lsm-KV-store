@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:12:10
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 11:35:56
+ * @LastEditTime: 2022-12-04 12:03:51
  * @FilePath: /lsm-KV-store/command/command.h
  * @Description:
  *
@@ -11,12 +11,13 @@
 #ifndef _Command_H_
 #define _Command_H_
 
+#include "../utils/utils_for_file_operation.h"
+#include <fstream>
 #include <nlohmann/json.hpp>
 #include <string>
 using json = nlohmann::json;
 
 // enum enumCommand {"RM","GET","SET"};
-
 
 class Command {
   public:
@@ -25,6 +26,16 @@ class Command {
         return this->key;
     };
     virtual json toJSON() = 0;
+    /**
+     * @description:
+     * @param {fstream} *f
+     * @return long: the size of serialized command
+     */
+    long writeCommandToFile(std::fstream *f) {
+        std::string commandString = this->toJSON().dump();
+        writeStringToFile(commandString, f);
+        return commandString.size();
+    }
 
   protected:
     std::string type;
@@ -58,4 +69,4 @@ class RmCommand : public Command {
     }
 };
 
-#endif 
+#endif

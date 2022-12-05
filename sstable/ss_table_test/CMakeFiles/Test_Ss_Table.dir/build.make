@@ -56,7 +56,7 @@ EQUALS = =
 CMAKE_SOURCE_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin
+CMAKE_BINARY_DIR = /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test
 
 # Include any dependencies generated for this target.
 include CMakeFiles/Test_Ss_Table.dir/depend.make
@@ -72,7 +72,7 @@ include CMakeFiles/Test_Ss_Table.dir/flags.make
 CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o: CMakeFiles/Test_Ss_Table.dir/flags.make
 CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o: ../ss_table.cpp
 CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o: CMakeFiles/Test_Ss_Table.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o -MF CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o.d -o CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o -c /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table.cpp
 
 CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.i: cmake_force
@@ -86,7 +86,7 @@ CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.s: cmake_force
 CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o: CMakeFiles/Test_Ss_Table.dir/flags.make
 CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o: ../table_meta_info.cpp
 CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o: CMakeFiles/Test_Ss_Table.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o -MF CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o.d -o CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o -c /home/bohan_wu_ubuntu/lsm-KV-store/sstable/table_meta_info.cpp
 
 CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.i: cmake_force
@@ -100,22 +100,37 @@ CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.s: cmake_force
 CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o: CMakeFiles/Test_Ss_Table.dir/flags.make
 CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o: ss_table_test.cpp
 CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o: CMakeFiles/Test_Ss_Table.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o -MF CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o.d -o CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o -c /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/ss_table_test.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o -MF CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o.d -o CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o -c /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/ss_table_test.cpp
 
 CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/ss_table_test.cpp > CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/ss_table_test.cpp > CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.i
 
 CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/ss_table_test.cpp -o CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/ss_table_test.cpp -o CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.s
+
+CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o: CMakeFiles/Test_Ss_Table.dir/flags.make
+CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o: /home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp
+CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o: CMakeFiles/Test_Ss_Table.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o -MF CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o.d -o CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o -c /home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp
+
+CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp > CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.i
+
+CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp -o CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.s
 
 # Object files for target Test_Ss_Table
 Test_Ss_Table_OBJECTS = \
 "CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o" \
 "CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o" \
-"CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o"
+"CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o" \
+"CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o"
 
 # External object files for target Test_Ss_Table
 Test_Ss_Table_EXTERNAL_OBJECTS =
@@ -123,9 +138,10 @@ Test_Ss_Table_EXTERNAL_OBJECTS =
 Test_Ss_Table: CMakeFiles/Test_Ss_Table.dir/ss_table.cpp.o
 Test_Ss_Table: CMakeFiles/Test_Ss_Table.dir/table_meta_info.cpp.o
 Test_Ss_Table: CMakeFiles/Test_Ss_Table.dir/ss_table_test.cpp.o
+Test_Ss_Table: CMakeFiles/Test_Ss_Table.dir/home/bohan_wu_ubuntu/lsm-KV-store/utils/utils_for_file_operation.cpp.o
 Test_Ss_Table: CMakeFiles/Test_Ss_Table.dir/build.make
 Test_Ss_Table: CMakeFiles/Test_Ss_Table.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable Test_Ss_Table"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable Test_Ss_Table"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Test_Ss_Table.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -137,6 +153,6 @@ CMakeFiles/Test_Ss_Table.dir/clean:
 .PHONY : CMakeFiles/Test_Ss_Table.dir/clean
 
 CMakeFiles/Test_Ss_Table.dir/depend:
-	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/bohan_wu_ubuntu/lsm-KV-store/sstable /home/bohan_wu_ubuntu/lsm-KV-store/sstable /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin /home/bohan_wu_ubuntu/lsm-KV-store/sstable/test_and_bin/CMakeFiles/Test_Ss_Table.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/bohan_wu_ubuntu/lsm-KV-store/sstable /home/bohan_wu_ubuntu/lsm-KV-store/sstable /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test /home/bohan_wu_ubuntu/lsm-KV-store/sstable/ss_table_test/CMakeFiles/Test_Ss_Table.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/Test_Ss_Table.dir/depend
 

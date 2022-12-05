@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 10:30:28
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-05 22:17:26
+ * @LastEditTime: 2022-12-05 23:14:54
  * @FilePath: /lsm-KV-store/kv_store/lsm_kv_store.cpp
  * @Description:
  *
@@ -14,12 +14,12 @@
 #include "../sstable/ss_table.cpp"
 #include "./kv_store.cpp"
 #include "./utils/utils_for_file_operation.h"
+#include <cstdio>
 #include <list>
 #include <map>
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
-
 class LsmKvStore : public KvStore {
   public:
     const std::string TABLE_SUFFIX = ".table";
@@ -77,7 +77,7 @@ class LsmKvStore : public KvStore {
         // if memtable is at threshold, make it consistent to SSD
         if (memTable->size() > memThreshold) {
             // memTable -> immutableMemTable
-            switchMemTable();
+            switchMemTableAndWal();
             flushToSsTable();
         }
     }
@@ -96,7 +96,7 @@ class LsmKvStore : public KvStore {
         // if memtable is at threshold, make it consistent to SSD
         if (memTable->size() > memThreshold) {
             // memTable -> immutableMemTable
-            switchMemTable();
+            switchMemTableAndWal();
             flushToSsTable();
         }
     }
@@ -114,7 +114,24 @@ class LsmKvStore : public KvStore {
     std::fstream *walFileStream;
 
     void restoreFromWal(std::fstream *fileStream);
-    void switchMemTable();
+    void switchMemTableAndWal() {
+        // switch MemTable
+        this->immutableMemTable = this->memTable;
+        this->memTable = new RedBlackTreeMemTable();
+        // switch WAL file
+        walFileStream->close();
+        std::string fullWalFile = this->dataDir + WAL_TMP;
+        if (isFileExisting(fullWalFile)) {
+            if (!std::remove(fullWalFile.c_str())) {
+                std::cout << "[switchMemTableAndWal] fail to delete walTmp: " << fullWalFile << std::endl;
+            }
+        }
+        if (!std::rename(this->walFile.c_str(), fullWalFile.c_str())) {
+            std::cout << "[switchMemTableAndWal] fail to rename walTmp: " << this->walFile << " to " << fullWalFile << std::endl;
+        }
+        this->walFile = fullWalFile;
+        this->walFileStream->open(this->walFile, std::ios::in | std::ios::out | std::ios::binary);
+    }
     void flushToSsTable();
 
   protected:

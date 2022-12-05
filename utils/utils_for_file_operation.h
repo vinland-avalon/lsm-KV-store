@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-03 22:36:58
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-04 11:33:03
+ * @LastEditTime: 2022-12-05 23:05:27
  * @FilePath: /lsm-KV-store/utils/utils_for_file_operation.h
  * @Description:
  *
@@ -18,5 +18,6 @@
 std::vector<std::string> *getFilenamesInDirectory(const char *dir_name);
 bool endsWith(std::string s, std::string sub);
 void writeStringToFile(std::string s, std::fstream *f);
+bool isFileExisting(std::string name);
 
 #endif

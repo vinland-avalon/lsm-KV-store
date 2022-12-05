@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-03 22:18:01
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-04 11:24:44
+ * @LastEditTime: 2022-12-05 23:04:05
  * @FilePath: /lsm-KV-store/utils/utils_for_file_operation.cpp
  * @Description:
  *
@@ -10,6 +10,7 @@
  */
 
 #include <dirent.h>
+#include <fstream>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +18,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
-#include <fstream>
 
 /**
  * @description: get filenames in a directory, except for . and ..
@@ -73,4 +73,9 @@ bool endsWith(std::string s, std::string sub) {
 
 void writeStringToFile(std::string s, std::fstream *f) {
     f->write(s.c_str(), s.size() + 1);
+}
+
+bool isFileExisting(std::string name) {
+    struct stat buffer;
+    return (stat(name.c_str(), &buffer) == 0);
 }

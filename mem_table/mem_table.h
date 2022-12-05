@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:54:25
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-02 11:52:47
+ * @LastEditTime: 2022-12-05 22:18:29
  * @FilePath: /lsm-KV-store/mem_table/mem_table.h
  * @Description:
  *
@@ -19,6 +19,7 @@ class MemTable {
     virtual Command *get(std::string key) = 0;
     virtual void set(std::string key, Command *command) = 0;
     virtual void remove(std::string key) = 0;
+    virtual long size() = 0;
 
     // features about iterator
     virtual void reachBegin() = 0;
@@ -26,4 +27,4 @@ class MemTable {
     virtual void next() = 0;
 };
 
-#endif 
+#endif

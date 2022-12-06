@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 10:30:28
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-06 18:15:20
+ * @LastEditTime: 2022-12-06 18:52:50
  * @FilePath: /lsm-KV-store/kv_store/lsm_kv_store.cpp
  * @Description:
  *
@@ -68,9 +68,12 @@ class LsmKvStore : public KvStore {
         // todo: take the advantage of thread pool
         SetCommand *command = new SetCommand("SET", key, value);
         std::string commandString = command->toJSON().dump();
+        long len = commandString.size();
         std::unique_lock<std::shared_mutex> wlock(*(this->rwlock));
 
-        // todo: write ahead log
+        // write ahead log
+        this->walFileStream->write((const char *)&len, sizeof(len));
+        writeStringToFile(commandString, this->walFileStream);
 
         // memtable
         memTable->set(key, command);
@@ -136,7 +139,23 @@ class LsmKvStore : public KvStore {
     std::string walFile;
     std::fstream *walFileStream;
 
-    void restoreFromWal(std::fstream *fileStream);
+    /**
+     * @description: wal/tmp_file data structure: len json len json
+     * @param {fstream} *fileStream
+     * @return {*}
+     */
+    void restoreFromWal(std::fstream *fileStream) {
+        fileStream->seekg(0);
+        long len = 0;
+        char buffer[1000];
+        while (fileStream->eof()) {
+            fileStream->read((char *)&len, sizeof(len));
+            fileStream->read(buffer, len);
+            std::string commandString = buffer;
+            Command *command = SsTable::JSONtoCommand(json::parse(commandString));
+            this->memTable->set(command->getKey(), command);
+        }
+    }
     /**
      * @description: 1. memTable->immutableMemTable
      * @discription: 2. old walfile rename to WAL_TMP, create new walFile

@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:12:10
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-04 12:03:51
+ * @LastEditTime: 2022-12-06 18:11:15
  * @FilePath: /lsm-KV-store/command/command.h
  * @Description:
  *
@@ -36,6 +36,9 @@ class Command {
         writeStringToFile(commandString, f);
         return commandString.size();
     }
+    std::string getType() {
+        return this->type;
+    }
 
   protected:
     std::string type;
@@ -52,6 +55,9 @@ class SetCommand : public Command {
         record["type"] = type;
         record["value"] = value;
         return record;
+    }
+    std::string getValue() {
+        return this->value;
     }
 
   private:

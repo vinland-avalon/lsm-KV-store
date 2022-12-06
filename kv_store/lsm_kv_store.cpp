@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 10:30:28
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-06 17:52:56
+ * @LastEditTime: 2022-12-06 18:15:20
  * @FilePath: /lsm-KV-store/kv_store/lsm_kv_store.cpp
  * @Description:
  *
@@ -82,7 +82,29 @@ class LsmKvStore : public KvStore {
             flushToSsTable();
         }
     }
-    std::string get(std::string);
+    std::string get(std::string key) {
+        std::shared_lock<std::shared_mutex> rlock(*(this->rwlock));
+        Command *command = this->memTable->get(key);
+        if (command == nullptr && this->immutableMemTable != nullptr) {
+            command = this->immutableMemTable->get(key);
+        }
+        if (command == nullptr) {
+            for (SsTable *ssTable : *(this->ssTables)) {
+                command = ssTable->query(key);
+                if (command) {
+                    break;
+                }
+            }
+        }
+        if (command == nullptr)
+            return nullptr;
+        if (command->getType() == "SET") {
+            return (dynamic_cast<SetCommand *>(command))->getValue();
+        }
+        if (command->getType() == "RM") {
+            return nullptr;
+        }
+    }
     void remove(std::string key) {
         // todo: take the advantage of thread pool
         RmCommand *command = new RmCommand("SET", key);

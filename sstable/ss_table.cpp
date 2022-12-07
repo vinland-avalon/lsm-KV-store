@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-04 12:05:06
+ * @LastEditTime: 2022-12-06 18:45:15
  * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
  * @Description:
  *
@@ -39,7 +39,7 @@ class SsTable {
     // todo: single instance mode
     TableMetaInfo *getTableMetaInfo() { return this->tableMetaInfo; }
 
-    Command *JSONtoCommand(json jCommand) {
+    static Command *JSONtoCommand(json jCommand) {
         Command *command = nullptr;
         if (jCommand["type"] == "SET") {
             command = new SetCommand("SET", jCommand["key"], jCommand["value"]);

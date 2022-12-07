@@ -34,3 +34,8 @@ git-completion.bash
 *.exe
 *.out
 *.app
+
+# Build directory.
+build/
+out/
+

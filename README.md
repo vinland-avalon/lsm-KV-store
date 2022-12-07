@@ -1,3 +1,13 @@
+<!--
+ * @Author: BohanWu 819186192@qq.com
+ * @Date: 2022-11-30 10:24:05
+ * @LastEditors: BohanWu 819186192@qq.com
+ * @LastEditTime: 2022-12-07 18:49:19
+ * @FilePath: /lsm-KV-store/README.md
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved. 
+-->
 <h1 align="center">
   <br>
   LSM-KV-STORE (IN DEVELOPMENT)
@@ -48,7 +58,8 @@ I'd like you send me an email at <bohanwu1022@gmail.com> or <819186192@qq.com> a
 
 This software uses the following open source packages:
 
-- [nlohmann-json](https://github.com/nlohmann/json)
+- [nlohmann-json](https://github.com/nlohmann/json): easy to use -- header-only
+- [googletest](https://github.com/google/googletest.git)
 
 ## Related
 

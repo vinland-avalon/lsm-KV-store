@@ -2,16 +2,16 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:33:21
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-06 18:45:15
- * @FilePath: /lsm-KV-store/sstable/ss_table.cpp
+ * @LastEditTime: 2022-12-07 17:28:33
+ * @FilePath: /lsm-KV-store/src/ss_table.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
-#include "../command/command.h"
-#include "../mem_table/mem_table.h"
-#include "../utils/utils_for_file_operation.h"
-#include "./table_meta_info.cpp"
+#include "mem_table.h"
+#include "utils_for_file_operation.h"
+#include "ss_table_meta_info.h"
+#include "command.h"
 #include <fstream>
 #include <map>
 #include <nlohmann/json.hpp>

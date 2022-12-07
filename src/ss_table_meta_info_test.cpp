@@ -2,13 +2,13 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 23:02:04
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-03 21:57:25
- * @FilePath: /lsm-KV-store/sstable/table_meta_info_test/table_meta_info_test.cpp
+ * @LastEditTime: 2022-12-07 17:27:24
+ * @FilePath: /lsm-KV-store/src/ss_table_meta_info_test.cpp
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
-#include "../table_meta_info.cpp"
+#include "ss_table_meta_info.h"
 #include <iostream>
 
 // g++ -o table_meta_info_test ./table_meta_info_test.cpp ../table_meta_info.cpp

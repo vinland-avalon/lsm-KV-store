@@ -2,15 +2,15 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:54:25
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-05 22:18:29
- * @FilePath: /lsm-KV-store/mem_table/mem_table.h
+ * @LastEditTime: 2022-12-07 17:27:03
+ * @FilePath: /lsm-KV-store/src/mem_table.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
 #ifndef _Mem_Table_H_
 #define _Mem_Table_H_
-#include "../command/command.h"
+#include "command.h"
 #include <string>
 
 // iterator

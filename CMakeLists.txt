@@ -1,8 +1,11 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.0.0)
+project(Lsm-Kv-Store VERSION 0.1.0)
 
-project(Tutorial)
-add_executable(Tutorial tutorial.cpp)
+include(CTest)
+enable_testing()
 
-add_subdirectory(./sstable/json)
+add_executable(Lsm-Kv-Store main.cpp)
 
-target_link_libraries(Tutorial PRIVATE nlohmann_json::nlohmann_json)
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)

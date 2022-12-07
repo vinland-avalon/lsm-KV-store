@@ -36,6 +36,6 @@ git-completion.bash
 *.app
 
 # Build directory.
-build/
+build/*
 out/
 

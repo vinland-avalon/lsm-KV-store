@@ -4,13 +4,15 @@ project(Lsm-Kv-Store VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_subdirectory(src)
+# add_subdirectory(src)
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(db)
+link_directories(db/build)
 
-add_executable(Lsm-Kv-Store main.cpp)
-target_link_libraries(Lsm-Kv-Store db)
+add_executable(Lsm-Kv-Store main.cpp db/utils_for_time_operation.cpp)
+
+
+
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
@@ -23,3 +25,5 @@ include(CPack)
 
 # include(GoogleTest)
 # gtest_discover_tests(hello_test)
+
+target_link_libraries(Lsm-Kv-Store libdb.so)

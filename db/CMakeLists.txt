@@ -4,7 +4,9 @@ project(db VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_library(db db.cpp)
+aux_source_directory(. src)
+
+add_library(db SHARED ${src})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

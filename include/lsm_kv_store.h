@@ -2,8 +2,8 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 10:30:28
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-07 17:26:15
- * @FilePath: /lsm-KV-store/src/lsm_kv_store.h
+ * @LastEditTime: 2022-12-09 17:28:46
+ * @FilePath: /lsm-KV-store/include/lsm_kv_store.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
@@ -30,38 +30,47 @@ class LsmKvStore : public KvStore {
     // todo: for sstable and kv_store, they have to see the files in the same path
     // todo: 1) both in ../ or 2) absulute path
     LsmKvStore(std::string _dataDir, int _memThreshold, int _partitionSize) : dataDir(_dataDir), memThreshold(_memThreshold), partitionSize(_partitionSize) {
-        this->rwlock = new std::shared_mutex();
-        this->ssTables = new std::list<SsTable *>();
-        this->memTable = new RedBlackTreeMemTable();
-        std::vector<std::string> *filesInDir = getFilenamesInDirectory(dataDir.c_str());
-        if (filesInDir == nullptr) {
-            return;
-        }
-        std::map<long, SsTable *> *ssTableMap = new std::map<long, SsTable *>();
-        for (std::string filename : (*filesInDir)) {
-            if (endsWith(filename, TABLE_SUFFIX)) {
-                long time = stol(filename.substr(filename.size() - TABLE_SUFFIX.size()));
-                SsTable *ssTable = new SsTable(filename, 0);
-                ssTable->initFromFile();
-                ssTableMap->insert(std::make_pair(time, ssTable));
-
-                // the latter is to restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
-            } else if (filename == WAL || filename == WAL_TMP) {
-                std::fstream *tmpFstream = new std::fstream;
-                tmpFstream->open(walFile, std::ios::in | std::ios::out | std::ios::binary);
-                if (!tmpFstream->is_open()) {
-                    std::cout << filename << ": fail to open" << std::endl;
-                }
-                if (filename == WAL) {
-                    this->walFile = filename;
-                    this->walFileStream = tmpFstream;
-                }
-                restoreFromWal(tmpFstream);
+        try{
+            this->rwlock = new std::shared_mutex();
+            this->ssTables = new std::list<SsTable *>();
+            this->memTable = new RedBlackTreeMemTable();
+            if(!isSolidDirectory(this->dataDir)) {
+                //todo: log4cpp error
+                throw dataDir+" not valid";
             }
+            std::vector<std::string> filesInDir = getFilenamesInDirectory(dataDir);
+            std::map<long, SsTable *> *ssTableMap = new std::map<long, SsTable *>();
+            for (std::string filename : filesInDir) {
+                if (endsWith(filename, TABLE_SUFFIX)) {
+                    long time = stol(filename.substr(filename.size() - TABLE_SUFFIX.size()));
+                    SsTable *ssTable = new SsTable(filename, 0);
+                    ssTable->initFromFile();
+                    ssTableMap->insert(std::make_pair(time, ssTable));
+
+                    // the latter is to restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
+                } else if (filename == WAL || filename == WAL_TMP) {
+                    std::fstream *tmpFstream = new std::fstream;
+                    tmpFstream->open(walFile, std::ios::in | std::ios::out | std::ios::binary);
+                    if (!tmpFstream->is_open()) {
+                        std::cout << filename << ": fail to open" << std::endl;
+                    }
+                    if (filename == WAL) {
+                        this->walFile = filename;
+                        this->walFileStream = tmpFstream;
+                    }
+                    restoreFromWal(tmpFstream);
+                }
+            }
+            for (auto it = ssTableMap->begin(); it != ssTableMap->end(); it++) {
+                this->ssTables->push_back(it->second);
+            }
+        } catch (std::string error_msg){
+            delete this->rwlock;
+            delete this->ssTables;
+            delete this->memTable;
+            throw;
         }
-        for (auto it = ssTableMap->begin(); it != ssTableMap->end(); it++) {
-            this->ssTables->push_back(it->second);
-        }
+        
     }
 
     void set(std::string key, std::string value) {

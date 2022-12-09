@@ -35,19 +35,17 @@ include(CPack)
 
 # ---------------------------test--------------------------------
 
-# 查找 GTest 库
 find_package(GTest REQUIRED)
-# GTest 的头文件
+
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(FooTest test.cpp db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp)
 
-# 链接测试库
+
 target_link_libraries(FooTest
         ${GTEST_BOTH_LIBRARIES}
         pthread )
 
-# 添加到测试
 gtest_discover_tests(FooTest)
 
 

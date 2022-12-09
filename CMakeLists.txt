@@ -12,6 +12,7 @@ include_directories(include)
 # set(DBsrc db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp)
 
 set(CAMAKE_BUILD_TYPE Debug)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 add_executable(Lsm-Kv-Store main.cpp db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp) 
 

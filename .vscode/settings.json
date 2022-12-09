@@ -64,7 +64,10 @@
         "optional": "cpp",
         "ranges": "cpp",
         "sstream": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "set": "cpp",
+        "variant": "cpp"
     },
-    "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve"
+    "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
+    "C_Cpp.intelliSenseEngineFallback": "enabled"
 }

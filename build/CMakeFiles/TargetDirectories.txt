@@ -1,5 +1,0 @@
-/home/bohan_wu_ubuntu/lsm-KV-store/build/CMakeFiles/Tutorial.dir
-/home/bohan_wu_ubuntu/lsm-KV-store/build/CMakeFiles/edit_cache.dir
-/home/bohan_wu_ubuntu/lsm-KV-store/build/CMakeFiles/rebuild_cache.dir
-/home/bohan_wu_ubuntu/lsm-KV-store/build/sstable/json/CMakeFiles/edit_cache.dir
-/home/bohan_wu_ubuntu/lsm-KV-store/build/sstable/json/CMakeFiles/rebuild_cache.dir

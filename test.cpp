@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-09 16:25:45
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-09 17:53:19
+ * @LastEditTime: 2022-12-10 16:14:08
  * @FilePath: /lsm-KV-store/test.cpp
  * @Description:
  *
@@ -14,6 +14,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <gtest/gtest.h>
+#include "spdlog/spdlog.h"
 using json = nlohmann::json;
 
 TEST(FooTest, test0) {

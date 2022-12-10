@@ -10,7 +10,7 @@ enable_testing()
 include_directories(include)
 
 include_directories(./third-party/spdlog/include)
-link_directories(./third-party/spdlog//build)
+link_directories(./third-party/spdlog/build)
 
 set(CAMAKE_BUILD_TYPE Debug)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
@@ -28,12 +28,15 @@ include(CPack)
 find_package(GTest REQUIRED)
 
 include_directories(${GTEST_INCLUDE_DIRS})
+include_directories(./third-party/spdlog/include)
+link_directories(./third-party/spdlog//build)
 
 add_executable(FooTest test.cpp db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp)
 
 
 target_link_libraries(FooTest
         ${GTEST_BOTH_LIBRARIES}
+        spdlog
         pthread )
 
 gtest_discover_tests(FooTest)

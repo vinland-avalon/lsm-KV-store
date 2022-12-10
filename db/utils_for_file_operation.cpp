@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-03 22:18:01
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-10 10:49:15
+ * @LastEditTime: 2022-12-10 16:17:35
  * @FilePath: /lsm-KV-store/db/utils_for_file_operation.cpp
  * @Description:
  *
@@ -19,17 +19,22 @@
 #include <unistd.h>
 #include <vector>
 #include <filesystem>
+#include "spdlog/spdlog.h"
 
 bool isSolidDirectory(const std::string dir_path) {
     // check if dir_name is a valid dir
     struct stat s;
-    lstat(dir_path.c_str(), &s);
+    if (lstat(dir_path.c_str(), &s) < 0) {
+        spdlog::error("[isSolidDirectory] Failed to lstat {}: {}", dir_path, strerror(errno));
+        return false;
+    }
     if (!S_ISDIR(s.st_mode)) {
-        std::cout << "Warning: [isSolidDIrectory]: " << dir_path << " is not a valid directory !" << std::endl;
+        spdlog::warn("[isSolidDIrectory] {}(dir_path) is not a directory");
         return false;
     }
     return true;
 }
+
 
 /**
  * @description: get filenames in a directory, except for . and ..
@@ -43,6 +48,10 @@ std::vector<std::string> getFilenamesInDirectory(const std::string dir_path) {
         // ignore "." and ".."
         if (filename != "." && filename != "..")
             filenames.push_back(std::move(filename));
+    }
+    spdlog::info("[getFilenamesInDirectory] get {0} files in {1}, namely: ", filenames.size(), dir_path);
+    for(auto &filename: filenames) {
+        spdlog::info("[getFilenamesInDirectory] get {}", filename);
     }
     return filenames;
 }

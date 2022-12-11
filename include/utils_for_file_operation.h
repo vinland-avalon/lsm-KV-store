@@ -2,7 +2,7 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-03 22:36:58
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-08 20:19:51
+ * @LastEditTime: 2022-12-09 17:35:24
  * @FilePath: /lsm-KV-store/include/utils_for_file_operation.h
  * @Description:
  *
@@ -15,9 +15,11 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> *getFilenamesInDirectory(const char *dir_name);
+bool isSolidDirectory(const std::string dir_path);
+std::vector<std::string> getFilenamesInDirectory(const std::string dir_path);
 bool endsWith(std::string s, std::string sub);
 void writeStringToFile(std::string s, std::fstream *f);
 bool isFileExisting(std::string name);
+
 
 #endif

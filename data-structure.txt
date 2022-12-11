@@ -1,0 +1,4 @@
+ssTable:
+
+name format: time.table
+for example: 15432536232646.table

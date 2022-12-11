@@ -60,6 +60,7 @@ This software uses the following open source packages:
 
 - [nlohmann-json](https://github.com/nlohmann/json): easy to use -- header-only
 - [googletest](https://github.com/google/googletest.git)
+- [spdlog](https://github.com/gabime/spdlog.git)
 
 ## Related
 

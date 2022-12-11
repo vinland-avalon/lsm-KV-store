@@ -2,8 +2,8 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-12-07 12:08:07
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-07 17:24:16
- * @FilePath: /lsm-KV-store/src/command.h
+ * @LastEditTime: 2022-12-10 17:33:44
+ * @FilePath: /lsm-KV-store/include/command.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
@@ -40,6 +40,15 @@ class Command {
     std::string getType() {
         return this->type;
     }
+    static std::shared_ptr<Command> JSONtoCommand(json jCommand) {
+        std::shared_ptr<Command> command;
+        if (jCommand["type"] == "SET") {
+            command = std::shared_ptr<Command>(new SetCommand("SET", jCommand["key"], jCommand["value"]));
+        } else if (jCommand["type"] == "RM") {
+            command = std::shared_ptr<Command>(new RmCommand("RM", jCommand["key"]));
+        }
+        return command;
+    };
 
   protected:
     std::string type;

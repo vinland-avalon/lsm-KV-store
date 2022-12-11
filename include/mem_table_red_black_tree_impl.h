@@ -8,6 +8,10 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+
+#ifndef _MEM_TABLE_RED_BLACK_TREE_IMPL_H_
+#define _MEM_TABLE_RED_BLACK_TREE_IMPL_H_
+
 #include "command.h"
 #include "mem_table.h"
 #include <map>
@@ -52,3 +56,5 @@ class RedBlackTreeMemTable : public MemTable {
     std::multimap<std::string, std::shared_ptr<Command> > *table;
     std::multimap<std::string, std::shared_ptr<Command>>::iterator it;
 };
+
+#endif

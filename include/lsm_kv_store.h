@@ -8,12 +8,17 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+
+#ifndef _LSM_KV_STORE_H_
+#define _LSM_KV_STORE_H_
+
 #include "command.h"
 #include "kv_store.h"
 #include "mem_table.h"
 #include "mem_table_red_black_tree_impl.h"
 #include "ss_table.h"
 #include "utils_for_file_operation.h"
+#include "utils_for_json_operation.h"
 #include "utils_for_time_operation.h"
 #include <cstdio>
 #include <list>
@@ -42,27 +47,34 @@ class LsmKvStore : public KvStore {
             std::vector<std::string> filesInDir = getFilenamesInDirectory(dataDir);
             std::map<long, std::shared_ptr<SsTable>> ssTableMap;
             for (std::string filename : filesInDir) {
+                std::string fileWithPath = dataDir + "/" + filename;
                 // it's a SSTable file, it's like 142153253253.table
                 if (endsWith(filename, TABLE_SUFFIX)) {
                     spdlog::info("[LsmKvStore][constructor] init ssTable from file: {}", filename);
                     long time = stol(filename.substr(filename.size() - TABLE_SUFFIX.size()));
-                    std::shared_ptr<SsTable> ssTable = SsTable::initFromSSD(filename);
+                    std::shared_ptr<SsTable> ssTable = SsTable::initFromSSD(fileWithPath);
                     ssTableMap.insert(std::make_pair(time, ssTable));
                     // WAL_TMP: restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
                     // WAL: restore from a pre-exist file, can keep on using it
                 } else if (filename == WAL || filename == WAL_TMP) {
                     spdlog::info("[LsmKvStore][constructor] restore commands from file: {}", filename);
                     std::fstream *tmpFstream = new std::fstream;
-                    tmpFstream->open(walFile, std::ios::in | std::ios::out | std::ios::binary);
+                    openFileAndCreateOneWhenNotExist(tmpFstream, fileWithPath);
+                    // tmpFstream->open(fileWithPath, std::ios::in | std::ios::out | std::ios::binary);
                     if (!tmpFstream->is_open()) {
                         std::cout << filename << ": fail to open" << std::endl;
                     }
                     if (filename == WAL) {
-                        this->walFile = filename;
+                        this->walFile = fileWithPath;
                         this->walFileStream = tmpFstream;
                     }
                     restoreFromWal(tmpFstream);
                 }
+            }
+            if (this->walFile == "" || this->walFileStream == nullptr) {
+                this->walFile = dataDir + "/" + WAL;
+                this->walFileStream = new std::fstream;
+                openFileAndCreateOneWhenNotExist(this->walFileStream, this->walFile);
             }
             for (auto it = ssTableMap.begin(); it != ssTableMap.end(); it++) {
                 this->ssTables->push_back(it->second);
@@ -124,6 +136,7 @@ class LsmKvStore : public KvStore {
     }
 
     ~LsmKvStore() {
+        flushSSTableAndWal();
         delete this->walFileStream;
         delete this->rwlock;
         delete this->ssTables;
@@ -139,8 +152,8 @@ class LsmKvStore : public KvStore {
     const int memThreshold;
     std::shared_mutex *rwlock;
     const int partitionSize;
-    std::string walFile;
-    std::fstream *walFileStream;
+    std::string walFile = "";
+    std::fstream *walFileStream = nullptr;
 
     /**
      * @description: wal/tmp_file data structure: len json len json
@@ -155,7 +168,7 @@ class LsmKvStore : public KvStore {
             fileStream->read((char *)&len, sizeof(len));
             fileStream->read(buffer, len);
             std::string commandString = buffer;
-            auto command = Command::JSONtoCommand(json::parse(commandString));
+            auto command = JSONtoCommand(json::parse(commandString));
             this->memTable->set(command->getKey(), command);
         }
     }
@@ -170,19 +183,20 @@ class LsmKvStore : public KvStore {
         this->memTable = std::shared_ptr<RedBlackTreeMemTable>(new RedBlackTreeMemTable());
         // switch WAL file
         walFileStream->close();
-        std::string fullWalFile = this->dataDir + WAL_TMP;
+        std::string fullWalFile = this->dataDir + "/" + WAL_TMP;
         if (isFileExisting(fullWalFile)) {
             if (!std::remove(fullWalFile.c_str())) {
                 spdlog::error("[LsmKvStore][switchMemTableAndWal] fail to delete walTmp: {}", fullWalFile);
                 throw "fail to delete WAL_TMP";
             }
         }
-        if (!std::rename(this->walFile.c_str(), fullWalFile.c_str())) {
+        if (std::rename(this->walFile.c_str(), fullWalFile.c_str())) {
             spdlog::error("[LsmKvStore][switchMemTableAndWal] fail to rename walTmp: {} to {}", this->walFile, fullWalFile);
             throw "fail to rename WAL to WAL_TMP";
         }
         this->walFile = fullWalFile;
-        this->walFileStream->open(this->walFile, std::ios::in | std::ios::out | std::ios::binary);
+        openFileAndCreateOneWhenNotExist(this->walFileStream, this->walFile);
+        // this->walFileStream->open(this->walFile, std::ios::in | std::ios::out | std::ios::binary);
         spdlog::info("[LsmKvStore][switchMemTableAndWal] rename walTmp: {} to {}", this->walFile, fullWalFile);
     }
     /**
@@ -191,14 +205,14 @@ class LsmKvStore : public KvStore {
      * @discription: 3. delete old immutableMemTable and WAL_TMP
      * @return {*}
      */
-    void flushToSsTable() {
-        std::string ssTablePath = this->dataDir + getSystemTimeInMills() + this->TABLE_SUFFIX;
+    void flushToSSD() {
+        std::string ssTablePath = this->dataDir + "/" + getSystemTimeInMills() + this->TABLE_SUFFIX;
         std::shared_ptr<SsTable> ssTable = SsTable::initFromMemTableAndFlushToSSD(this->immutableMemTable, this->partitionSize, ssTablePath);
 
         this->immutableMemTable = nullptr;
-        std::string oldTmpWal = this->dataDir + WAL_TMP;
+        std::string oldTmpWal = this->dataDir + "/" + WAL_TMP;
         if (isFileExisting(oldTmpWal)) {
-            if (!std::remove(oldTmpWal.c_str())) {
+            if (std::remove(oldTmpWal.c_str())) {
                 spdlog::error("[LsmKvStore][flushToSsTable] fail to delete oldTmpWal: {}", oldTmpWal);
             }
         }
@@ -220,11 +234,7 @@ class LsmKvStore : public KvStore {
 
             // if memtable is at threshold, make it consistent to SSD
             if (memTable->size() > memThreshold) {
-                // memTable -> immutableMemTable
-                // new memTable
-                switchMemTableAndWal();
-                // todo: make the flush action to async
-                flushToSsTable();
+                flushSSTableAndWal();
             }
         } catch (std::exception &error) {
             spdlog::error("[LsmKvStore][executeCommand] error: {}", error.what());
@@ -232,5 +242,20 @@ class LsmKvStore : public KvStore {
         }
     }
 
+    void flushSSTableAndWal() {
+        try {
+            // memTable -> immutableMemTable
+            // new memTable
+            switchMemTableAndWal();
+            // todo: make the flush action to async
+            flushToSSD();
+        } catch (std::exception &error) {
+            spdlog::error("[LsmKvStore][flushSSTableAndWal] error: {}", error.what());
+            throw;
+        }
+    }
+
   protected:
 };
+
+#endif

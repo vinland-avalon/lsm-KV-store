@@ -8,11 +8,16 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+#ifndef _KV_STORE_H_
+#define _KV_STORE_H_
+
 #include <string>
 
 class KvStore {
   public:
-    virtual void set(std::string, std::string) = 0;
-    virtual std::string get(std::string) = 0;
-    virtual void remove(std::string) = 0;
+    virtual void Set(std::string, std::string) = 0;
+    virtual std::string Get(std::string) = 0;
+    virtual void Remove(std::string) = 0;
 };
+
+#endif

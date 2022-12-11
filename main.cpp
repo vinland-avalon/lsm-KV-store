@@ -8,17 +8,20 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+#include "lsm_kv_store.h"
+#include "spdlog/spdlog.h"
 #include "utils_for_time_operation.h"
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include "spdlog/spdlog.h"
 using json = nlohmann::json;
 
 int main(int, char **) {
-    json j;
-    j["hello"] = "world";
-    std::cout << "in ./src/utils_for_time_operation.h, getSystemTimeInMills:" << getSystemTimeInMills()
-              << ", j['Hello'] = " << j["hello"] << std::endl;
-	spdlog::info("Welcome to spdlog!!!!!");
+    // json j;
+    // j["hello"] = "world";
+    // std::cout << "in ./src/utils_for_time_operation.h, getSystemTimeInMills:" << getSystemTimeInMills()
+    //           << ", j['Hello'] = " << j["hello"] << std::endl;
+    // spdlog::info("Welcome to spdlog!!!!!");
+    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    store->Set("key1", "100");
+    std::cout << store->Get("key1") << std::endl;
 }
-

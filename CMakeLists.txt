@@ -15,7 +15,7 @@ link_directories(./third-party/spdlog/build)
 set(CAMAKE_BUILD_TYPE Debug)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
-add_executable(Lsm-Kv-Store main.cpp db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp)
+add_executable(Lsm-Kv-Store main.cpp db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp db/utils_for_json_operation.cpp)
 
 target_link_libraries(Lsm-Kv-Store spdlog)
 
@@ -31,7 +31,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(./third-party/spdlog/include)
 link_directories(./third-party/spdlog//build)
 
-add_executable(FooTest test.cpp db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp)
+add_executable(FooTest test.cpp db/utils_for_file_operation.cpp db/utils_for_time_operation.cpp db/utils_for_json_operation.cpp)
 
 
 target_link_libraries(FooTest

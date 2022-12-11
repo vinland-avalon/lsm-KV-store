@@ -8,6 +8,10 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+
+#ifndef _SS_TABLE_META_INFO_H_
+#define _SS_TABLE_META_INFO_H_
+
 #include <fstream>
 #include <iostream>
 
@@ -87,3 +91,5 @@ class TableMetaInfo {
         this->indexStart = indexStart;
     }
 };
+
+#endif

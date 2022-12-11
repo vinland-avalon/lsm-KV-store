@@ -8,10 +8,15 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+
+#ifndef _SS_TABLE_H_
+#define _SS_TABLE_H_
+
 #include "command.h"
 #include "mem_table.h"
 #include "ss_table_meta_info.h"
 #include "utils_for_file_operation.h"
+#include "utils_for_json_operation.h"
 #include <fstream>
 #include <map>
 #include <nlohmann/json.hpp>
@@ -87,7 +92,7 @@ class SsTable {
             //std::cout << "[query] reload command in block: " << it.key() << " : " << it.value() << "\n";
             if (it.key() == key) {
                 spdlog::info("[SsTable][query] get the needed command:{}", it.value().dump());
-                return Command::JSONtoCommand(it.value());
+                return JSONtoCommand(it.value());
             }
         }
         return nullptr;
@@ -103,13 +108,14 @@ class SsTable {
     std::string filePath;
     SsTable(std::string _filePath, int _partitionSize = 0) {
         try {
-            this->tableMetaInfo = std::make_shared<TableMetaInfo>(new TableMetaInfo());
+            this->tableMetaInfo = std::shared_ptr<TableMetaInfo>(new TableMetaInfo());
             this->tableMetaInfo->setPartitionSize(_partitionSize);
             this->filePath = _filePath;
             this->sparseIndex = std::shared_ptr<std::map<std::string, std::pair<long, long>>>(new std::map<std::string, std::pair<long, long>>());
-            tableFile.open(_filePath, std::ios::in | std::ios::out | std::ios::binary);
+            openFileAndCreateOneWhenNotExist(&(this->tableFile), this->filePath);
+            //tableFile.open(_filePath, std::ios::in | std::ios::out | std::ios::binary);
             if (!tableFile.is_open()) {
-                spdlog::error("[SsTable][Constructor] fail to open file {}", tableFile);
+                spdlog::error("[SsTable][Constructor] fail to open file {}", this->filePath);
                 throw "Fail to open file";
             }
             tableFile.seekp(0);
@@ -224,3 +230,5 @@ class SsTable {
         sparseIndex->emplace(key, std::pair<long, long>(start, len));
     }
 };
+
+#endif

@@ -74,3 +74,10 @@ bool isFileExisting(std::string name) {
     struct stat buffer;
     return (stat(name.c_str(), &buffer) == 0);
 }
+
+bool openFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath){
+    f->open(filePath, std::ios::out | std::ios::binary);
+    f->close();
+    f->open(filePath, std::ios::out | std::ios::binary | std::ios::in);
+    return true;
+}

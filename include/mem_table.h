@@ -8,8 +8,9 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
-#ifndef _Mem_Table_H_
-#define _Mem_Table_H_
+#ifndef _MEM_TABLE_H_
+#define _MEM_TABLE_H_
+
 #include "command.h"
 #include <string>
 

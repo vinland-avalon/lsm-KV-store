@@ -38,4 +38,5 @@ git-completion.bash
 # Build directory.
 build/
 out/
+data/
 

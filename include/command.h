@@ -9,8 +9,8 @@
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
 
-#ifndef _Command_H_
-#define _Command_H_
+#ifndef _COMMAND_H_
+#define _COMMAND_H_
 
 #include "utils_for_file_operation.h"
 #include <fstream>
@@ -40,25 +40,26 @@ class Command {
     std::string getType() {
         return this->type;
     }
-    static std::shared_ptr<Command> JSONtoCommand(json jCommand) {
-        std::shared_ptr<Command> command;
-        if (jCommand["type"] == "SET") {
-            command = std::shared_ptr<Command>(new SetCommand("SET", jCommand["key"], jCommand["value"]));
-        } else if (jCommand["type"] == "RM") {
-            command = std::shared_ptr<Command>(new RmCommand("RM", jCommand["key"]));
-        }
-        return command;
-    };
 
   protected:
     std::string type;
     std::string key;
 };
 
+class RmCommand : public Command {
+  public:
+    RmCommand(std::string _type, std::string _key) : Command(_type, _key) {}
+    json toJSON() {
+        json record;
+        record["key"] = key;
+        record["type"] = type;
+        return record;
+    }
+};
+
 class SetCommand : public Command {
   public:
     SetCommand(std::string _type, std::string _key, std::string _value) : Command(_type, _key), value(_value) {}
-    SetCommand();
     json toJSON() {
         json record;
         record["key"] = key;
@@ -72,17 +73,6 @@ class SetCommand : public Command {
 
   private:
     std::string value;
-};
-
-class RmCommand : public Command {
-  public:
-    RmCommand(std::string _type, std::string _key) : Command(_type, _key) {}
-    json toJSON() {
-        json record;
-        record["key"] = key;
-        record["type"] = type;
-        return record;
-    }
 };
 
 #endif

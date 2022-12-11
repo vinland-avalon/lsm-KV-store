@@ -8,6 +8,10 @@
  * 
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved. 
  */
+
+#ifndef _SKIP_LIST_H_
+#define _SKIP_LIST_H_
+
 #include <iostream> 
 #include <cstdlib>
 #include <cmath>
@@ -413,3 +417,5 @@ int SkipList<K, V>::get_random_level(){
     k = (k < _max_level) ? k : _max_level;
     return k;
 };
+
+#endif

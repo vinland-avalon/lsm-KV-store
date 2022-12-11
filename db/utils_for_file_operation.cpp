@@ -76,8 +76,8 @@ bool isFileExisting(std::string name) {
 }
 
 bool openFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath){
-    f->open(filePath, std::ios::out | std::ios::binary);
+    f->open(filePath, std::ios::out | std::ios::binary | std::ios::app);
     f->close();
-    f->open(filePath, std::ios::out | std::ios::binary | std::ios::in);
+    f->open(filePath, std::ios::out | std::ios::binary | std::ios::in | std::ios::app);
     return true;
 }

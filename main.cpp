@@ -22,6 +22,7 @@ int main(int, char **) {
     //           << ", j['Hello'] = " << j["hello"] << std::endl;
     // spdlog::info("Welcome to spdlog!!!!!");
     auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
-    store->Set("key1", "100");
-    std::cout << store->Get("key1") << std::endl;
+    store->Set("key1", "300");
+    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
 }

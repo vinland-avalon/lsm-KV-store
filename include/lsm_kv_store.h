@@ -45,13 +45,14 @@ class LsmKvStore : public KvStore {
                 throw dataDir + " not valid";
             }
             std::vector<std::string> filesInDir = getFilenamesInDirectory(dataDir);
-            std::map<long, std::shared_ptr<SsTable>> ssTableMap;
+            // make it order: from big to small
+            std::map<long, std::shared_ptr<SsTable>, std::greater<long>> ssTableMap;
             for (std::string filename : filesInDir) {
                 std::string fileWithPath = dataDir + "/" + filename;
                 // it's a SSTable file, it's like 142153253253.table
                 if (endsWith(filename, TABLE_SUFFIX)) {
                     spdlog::info("[LsmKvStore][constructor] init ssTable from file: {}", filename);
-                    long time = stol(filename.substr(filename.size() - TABLE_SUFFIX.size()));
+                    long time = getTimeFromSSTableName(filename);
                     std::shared_ptr<SsTable> ssTable = SsTable::initFromSSD(fileWithPath);
                     ssTableMap.insert(std::make_pair(time, ssTable));
                     // WAL_TMP: restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
@@ -124,15 +125,15 @@ class LsmKvStore : public KvStore {
         }
         // check the "get" result and return value;
         if (command == nullptr)
-            return nullptr;
+            return "";
         else if (command->getType() == "SET") {
             std::string value = (std::dynamic_pointer_cast<SetCommand>(command))->getValue();
             spdlog::info("[LsmKvStore][Get] get {} for key: {}", value, key);
             return value;
         } else if (command->getType() == "RM") {
-            return nullptr;
+            return "";
         }
-        return nullptr;
+        return "";
     }
 
     ~LsmKvStore() {
@@ -253,6 +254,14 @@ class LsmKvStore : public KvStore {
             spdlog::error("[LsmKvStore][flushSSTableAndWal] error: {}", error.what());
             throw;
         }
+    }
+    
+    long getTimeFromSSTableName(std::string filename){
+        int start = 0;
+        // drop .table
+        int len = filename.size() - TABLE_SUFFIX.size() - 1;
+        long time = stol(filename.substr(start, len));
+        return time;
     }
 
   protected:

@@ -15,6 +15,7 @@
 #include <nlohmann/json.hpp>
 #include <gtest/gtest.h>
 #include "spdlog/spdlog.h"
+#include "lsm_kv_store.h"
 using json = nlohmann::json;
 
 TEST(FooTest, test0) {
@@ -29,4 +30,63 @@ TEST(UtilsForFileOperation, test){
     EXPECT_EQ(isFileExisting("test.cpp"), true);
     EXPECT_EQ(isFileExisting("invalid_file"), false);
 }
+
+TEST(PreWork, ClearDataDirectory){
+    
+}
+
+TEST(WholeWorkingFlow, SetKey1){
+    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    store->Set("key1", "300");
+    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
+    EXPECT_EQ(store->Get("key1"), "300");
+    EXPECT_EQ(store->Get("key2"), "");
+}
+
+TEST(WholeWorkingFlow, NotSetKey1ButGetItFromSSD){
+    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    // store->Set("key1", "300");
+    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
+    EXPECT_EQ(store->Get("key1"), "300");
+    EXPECT_EQ(store->Get("key2"), "");
+}
+
+TEST(WholeWorkingFlow, AgainSetKey1){
+    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    store->Set("key1", "400");
+    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
+    EXPECT_EQ(store->Get("key1"), "400");
+    EXPECT_EQ(store->Get("key2"), "");
+}
+
+TEST(WholeWorkingFlow, AgainNotSetKey1ButGetItFromSSD){
+    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    // store->Set("key1", "400");
+    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
+    EXPECT_EQ(store->Get("key1"), "400");
+    EXPECT_EQ(store->Get("key2"), "");
+}
+
+TEST(WholeWorkingFlow, RemoveKey1){
+    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    store->Remove("key1");
+    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
+    EXPECT_EQ(store->Get("key1"), "");
+    EXPECT_EQ(store->Get("key2"), "");
+}
+
+TEST(WholeWorkingFlow, NotRemoveKey1ButGetItFromSSD){
+    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    // store->Remove("key1");
+    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
+    EXPECT_EQ(store->Get("key1"), "");
+    EXPECT_EQ(store->Get("key2"), "");
+}
+
 

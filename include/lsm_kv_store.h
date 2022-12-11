@@ -2,19 +2,19 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 10:30:28
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-09 17:28:46
+ * @LastEditTime: 2022-12-11 11:51:40
  * @FilePath: /lsm-KV-store/include/lsm_kv_store.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
-#include "kv_store.h"
-#include "utils_for_file_operation.h"
-#include "utils_for_time_operation.h"
 #include "command.h"
+#include "kv_store.h"
 #include "mem_table.h"
 #include "mem_table_red_black_tree_impl.h"
 #include "ss_table.h"
+#include "utils_for_file_operation.h"
+#include "utils_for_time_operation.h"
 #include <cstdio>
 #include <list>
 #include <map>
@@ -30,25 +30,28 @@ class LsmKvStore : public KvStore {
     // todo: for sstable and kv_store, they have to see the files in the same path
     // todo: 1) both in ../ or 2) absulute path
     LsmKvStore(std::string _dataDir, int _memThreshold, int _partitionSize) : dataDir(_dataDir), memThreshold(_memThreshold), partitionSize(_partitionSize) {
-        try{
+        try {
             this->rwlock = new std::shared_mutex();
-            this->ssTables = new std::list<SsTable *>();
-            this->memTable = new RedBlackTreeMemTable();
-            if(!isSolidDirectory(this->dataDir)) {
-                //todo: log4cpp error
-                throw dataDir+" not valid";
+            this->ssTables = new std::list<std::shared_ptr<SsTable>>();
+            this->memTable = std::shared_ptr<MemTable>(new RedBlackTreeMemTable());
+            if (!isSolidDirectory(this->dataDir)) {
+                spdlog::warn("[LsmKvStore][constructor] dataDir: {} is invalid", this->dataDir);
+                // std::string will cast to std::exception
+                throw dataDir + " not valid";
             }
             std::vector<std::string> filesInDir = getFilenamesInDirectory(dataDir);
-            std::map<long, SsTable *> *ssTableMap = new std::map<long, SsTable *>();
+            std::map<long, std::shared_ptr<SsTable>> ssTableMap;
             for (std::string filename : filesInDir) {
+                // it's a SSTable file, it's like 142153253253.table
                 if (endsWith(filename, TABLE_SUFFIX)) {
+                    spdlog::info("[LsmKvStore][constructor] init ssTable from file: {}", filename);
                     long time = stol(filename.substr(filename.size() - TABLE_SUFFIX.size()));
-                    SsTable *ssTable = new SsTable(filename, 0);
-                    ssTable->initFromFile();
-                    ssTableMap->insert(std::make_pair(time, ssTable));
-
-                    // the latter is to restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
+                    std::shared_ptr<SsTable> ssTable = SsTable::initFromSSD(filename);
+                    ssTableMap.insert(std::make_pair(time, ssTable));
+                    // WAL_TMP: restore from walTmp file, and such file commonly derive from ssTable that fails when being persisted
+                    // WAL: restore from a pre-exist file, can keep on using it
                 } else if (filename == WAL || filename == WAL_TMP) {
+                    spdlog::info("[LsmKvStore][constructor] restore commands from file: {}", filename);
                     std::fstream *tmpFstream = new std::fstream;
                     tmpFstream->open(walFile, std::ios::in | std::ios::out | std::ios::binary);
                     if (!tmpFstream->is_open()) {
@@ -61,86 +64,77 @@ class LsmKvStore : public KvStore {
                     restoreFromWal(tmpFstream);
                 }
             }
-            for (auto it = ssTableMap->begin(); it != ssTableMap->end(); it++) {
+            for (auto it = ssTableMap.begin(); it != ssTableMap.end(); it++) {
                 this->ssTables->push_back(it->second);
             }
-        } catch (std::string error_msg){
-            delete this->rwlock;
-            delete this->ssTables;
-            delete this->memTable;
-            throw;
-        }
-        
-    }
-
-    void set(std::string key, std::string value) {
-        // todo: take the advantage of thread pool
-        SetCommand *command = new SetCommand("SET", key, value);
-        std::string commandString = command->toJSON().dump();
-        long len = commandString.size();
-        std::unique_lock<std::shared_mutex> wlock(*(this->rwlock));
-
-        // write ahead log
-        this->walFileStream->write((const char *)&len, sizeof(len));
-        writeStringToFile(commandString, this->walFileStream);
-
-        // memtable
-        memTable->set(key, command);
-
-        // if memtable is at threshold, make it consistent to SSD
-        if (memTable->size() > memThreshold) {
-            // memTable -> immutableMemTable
-            switchMemTableAndWal();
-            flushToSsTable();
+        } catch (std::exception &error) {
+            spdlog::error("[LsmKvStore][constructor] error: {}", error.what());
+            throw error;
         }
     }
-    std::string get(std::string key) {
+
+    void Set(std::string key, std::string value) {
+        try {
+            auto command = std::shared_ptr<SetCommand>(new SetCommand("SET", key, value));
+            executeCommand(command);
+        } catch (std::exception &error) {
+            // the toppest function, so won't throw again
+            spdlog::error("[LsmKvStore][Set] error: {}", error.what());
+        }
+    }
+
+    void Remove(std::string key) {
+        try {
+            auto command = std::shared_ptr<RmCommand>(new RmCommand("RM", key));
+            executeCommand(command);
+        } catch (std::exception &error) {
+            // the toppest function, so won't throw again
+            spdlog::error("[LsmKvStore][Rm] error: {}", error.what());
+        }
+    }
+
+    std::string Get(std::string key) {
         std::shared_lock<std::shared_mutex> rlock(*(this->rwlock));
-        Command *command = this->memTable->get(key);
+        // try to get corresponding command in memTable
+        std::shared_ptr<Command> command = this->memTable->get(key);
+        // try to get corresponding command in immutableMemTable
         if (command == nullptr && this->immutableMemTable != nullptr) {
             command = this->immutableMemTable->get(key);
         }
+        // try to get corresponding command in ssTables
         if (command == nullptr) {
-            for (SsTable *ssTable : *(this->ssTables)) {
+            for (std::shared_ptr<SsTable> ssTable : *(this->ssTables)) {
                 command = ssTable->query(key);
                 if (command) {
                     break;
                 }
             }
         }
+        // check the "get" result and return value;
         if (command == nullptr)
             return nullptr;
-        if (command->getType() == "SET") {
-            return (dynamic_cast<SetCommand *>(command))->getValue();
-        }
-        if (command->getType() == "RM") {
+        else if (command->getType() == "SET") {
+            std::string value = (std::dynamic_pointer_cast<SetCommand>(command))->getValue();
+            spdlog::info("[LsmKvStore][Get] get {} for key: {}", value, key);
+            return value;
+        } else if (command->getType() == "RM") {
             return nullptr;
         }
+        return nullptr;
     }
-    void remove(std::string key) {
-        // todo: take the advantage of thread pool
-        RmCommand *command = new RmCommand("SET", key);
-        std::string commandString = command->toJSON().dump();
-        std::unique_lock<std::shared_mutex> wlock(*(this->rwlock));
 
-        // todo: write ahead log
-
-        // memtable
-        memTable->set(key, command);
-
-        // if memtable is at threshold, make it consistent to SSD
-        if (memTable->size() > memThreshold) {
-            // memTable -> immutableMemTable
-            switchMemTableAndWal();
-            flushToSsTable();
-        }
+    ~LsmKvStore() {
+        delete this->walFileStream;
+        delete this->rwlock;
+        delete this->ssTables;
     }
 
   private:
-    MemTable *memTable;
-    MemTable *immutableMemTable;
+    std::shared_ptr<MemTable> memTable;
+    std::shared_ptr<MemTable> immutableMemTable;
 
-    std::list<SsTable *> *ssTables;
+    // std::list<SsTable *> *ssTables;
+    std::list<std::shared_ptr<SsTable>> *ssTables;
     const std::string dataDir;
     const int memThreshold;
     std::shared_mutex *rwlock;
@@ -161,7 +155,7 @@ class LsmKvStore : public KvStore {
             fileStream->read((char *)&len, sizeof(len));
             fileStream->read(buffer, len);
             std::string commandString = buffer;
-            Command *command = SsTable::JSONtoCommand(json::parse(commandString));
+            auto command = Command::JSONtoCommand(json::parse(commandString));
             this->memTable->set(command->getKey(), command);
         }
     }
@@ -173,20 +167,23 @@ class LsmKvStore : public KvStore {
     void switchMemTableAndWal() {
         // switch MemTable
         this->immutableMemTable = this->memTable;
-        this->memTable = new RedBlackTreeMemTable();
+        this->memTable = std::shared_ptr<RedBlackTreeMemTable>(new RedBlackTreeMemTable());
         // switch WAL file
         walFileStream->close();
         std::string fullWalFile = this->dataDir + WAL_TMP;
         if (isFileExisting(fullWalFile)) {
             if (!std::remove(fullWalFile.c_str())) {
-                std::cout << "[switchMemTableAndWal] fail to delete walTmp: " << fullWalFile << std::endl;
+                spdlog::error("[LsmKvStore][switchMemTableAndWal] fail to delete walTmp: {}", fullWalFile);
+                throw "fail to delete WAL_TMP";
             }
         }
         if (!std::rename(this->walFile.c_str(), fullWalFile.c_str())) {
-            std::cout << "[switchMemTableAndWal] fail to rename walTmp: " << this->walFile << " to " << fullWalFile << std::endl;
+            spdlog::error("[LsmKvStore][switchMemTableAndWal] fail to rename walTmp: {} to {}", this->walFile, fullWalFile);
+            throw "fail to rename WAL to WAL_TMP";
         }
         this->walFile = fullWalFile;
         this->walFileStream->open(this->walFile, std::ios::in | std::ios::out | std::ios::binary);
+        spdlog::info("[LsmKvStore][switchMemTableAndWal] rename walTmp: {} to {}", this->walFile, fullWalFile);
     }
     /**
      * @description: 1. flush immutableMemTable to brand-new file, created in the form of dataDir + system time + table_suffix
@@ -195,17 +192,43 @@ class LsmKvStore : public KvStore {
      * @return {*}
      */
     void flushToSsTable() {
-        std::string ssTableName = this->dataDir + getSystemTimeInMills() + this->TABLE_SUFFIX;
-        SsTable *ssTable = new SsTable(ssTableName, this->partitionSize);
-        ssTable->initFromMemTable(this->immutableMemTable);
+        std::string ssTablePath = this->dataDir + getSystemTimeInMills() + this->TABLE_SUFFIX;
+        std::shared_ptr<SsTable> ssTable = SsTable::initFromMemTableAndFlushToSSD(this->immutableMemTable, this->partitionSize, ssTablePath);
 
-        delete this->immutableMemTable;
         this->immutableMemTable = nullptr;
         std::string oldTmpWal = this->dataDir + WAL_TMP;
         if (isFileExisting(oldTmpWal)) {
             if (!std::remove(oldTmpWal.c_str())) {
-                std::cout << "[flushToSsTable] fail to delete oldTmpWal: " << oldTmpWal << std::endl;
+                spdlog::error("[LsmKvStore][flushToSsTable] fail to delete oldTmpWal: {}", oldTmpWal);
             }
+        }
+    }
+
+    void executeCommand(std::shared_ptr<Command> command) {
+        try {
+            // todo: take the advantage of thread pool
+            std::string commandString = command->toJSON().dump();
+            long len = commandString.size();
+            std::unique_lock<std::shared_mutex> wlock(*(this->rwlock));
+
+            // write ahead log
+            this->walFileStream->write((const char *)&len, sizeof(len));
+            writeStringToFile(commandString, this->walFileStream);
+
+            // memtable
+            memTable->set(command->getKey(), command);
+
+            // if memtable is at threshold, make it consistent to SSD
+            if (memTable->size() > memThreshold) {
+                // memTable -> immutableMemTable
+                // new memTable
+                switchMemTableAndWal();
+                // todo: make the flush action to async
+                flushToSsTable();
+            }
+        } catch (std::exception &error) {
+            spdlog::error("[LsmKvStore][executeCommand] error: {}", error.what());
+            throw;
         }
     }
 

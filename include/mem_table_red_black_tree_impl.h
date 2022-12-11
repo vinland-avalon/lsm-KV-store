@@ -2,8 +2,8 @@
  * @Author: BohanWu 819186192@qq.com
  * @Date: 2022-11-30 11:53:41
  * @LastEditors: BohanWu 819186192@qq.com
- * @LastEditTime: 2022-12-07 17:26:48
- * @FilePath: /lsm-KV-store/src/mem_table_red_black_tree_impl.h
+ * @LastEditTime: 2022-12-11 11:11:03
+ * @FilePath: /lsm-KV-store/include/mem_table_red_black_tree_impl.h
  * @Description:
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
@@ -15,16 +15,16 @@
 class RedBlackTreeMemTable : public MemTable {
   public:
     RedBlackTreeMemTable() {
-        this->table = new std::multimap<std::string, Command *>();
+        this->table = new std::multimap<std::string, std::shared_ptr<Command>>();
     }
-    Command *get(std::string key) {
+    std::shared_ptr<Command> get(std::string key) {
         it = table->find(key);
         if (it == table->end()) {
             return nullptr;
         }
         return it->second;
     }
-    void set(std::string key, Command *command) {
+    void set(std::string key, std::shared_ptr<Command> command) {
         table->insert(std::make_pair(key, command));
     }
     void remove(std::string key) {
@@ -34,7 +34,7 @@ class RedBlackTreeMemTable : public MemTable {
     void reachBegin() {
         this->it = table->begin();
     };
-    Command *curr() {
+    std::shared_ptr<Command> curr() {
         if (it == table->end()) {
             return nullptr;
         } else {
@@ -49,6 +49,6 @@ class RedBlackTreeMemTable : public MemTable {
     }
 
   private:
-    std::multimap<std::string, Command *> *table;
-    std::multimap<std::string, Command *>::iterator it;
+    std::multimap<std::string, std::shared_ptr<Command> > *table;
+    std::multimap<std::string, std::shared_ptr<Command>>::iterator it;
 };

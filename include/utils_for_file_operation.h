@@ -21,6 +21,7 @@ bool endsWith(std::string s, std::string sub);
 void writeStringToFile(std::string s, std::fstream *f);
 bool isFileExisting(std::string name);
 bool openFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath);
+bool deleteFilesInDir(const char *path);
 
 
 #endif

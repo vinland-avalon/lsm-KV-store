@@ -32,7 +32,7 @@ TEST(UtilsForFileOperation, test){
 }
 
 TEST(PreWork, ClearDataDirectory){
-    
+    deleteFilesInDir("./data");
 }
 
 TEST(WholeWorkingFlow, SetKey1){

@@ -9,7 +9,9 @@
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
 
+#include "spdlog/spdlog.h"
 #include <dirent.h>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -18,8 +20,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
-#include <filesystem>
-#include "spdlog/spdlog.h"
 
 bool isSolidDirectory(const std::string dir_path) {
     // check if dir_name is a valid dir
@@ -35,7 +35,6 @@ bool isSolidDirectory(const std::string dir_path) {
     return true;
 }
 
-
 /**
  * @description: get filenames in a directory, except for . and ..
  * @param {char} *dir_name
@@ -43,14 +42,14 @@ bool isSolidDirectory(const std::string dir_path) {
  */
 std::vector<std::string> getFilenamesInDirectory(const std::string dir_path) {
     std::vector<std::string> filenames;
-    for (const auto& entry : std::filesystem::directory_iterator(dir_path)) {
+    for (const auto &entry : std::filesystem::directory_iterator(dir_path)) {
         auto filename = entry.path().filename().string();
         // ignore "." and ".."
         if (filename != "." && filename != "..")
             filenames.push_back(std::move(filename));
     }
     spdlog::info("[getFilenamesInDirectory] get {0} files in {1}, namely: ", filenames.size(), dir_path);
-    for(auto &filename: filenames) {
+    for (auto &filename : filenames) {
         spdlog::info("[getFilenamesInDirectory] get {}", filename);
     }
     return filenames;
@@ -75,9 +74,43 @@ bool isFileExisting(std::string name) {
     return (stat(name.c_str(), &buffer) == 0);
 }
 
-bool openFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath){
+bool openFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath) {
     f->open(filePath, std::ios::out | std::ios::binary | std::ios::app);
     f->close();
     f->open(filePath, std::ios::out | std::ios::binary | std::ios::in | std::ios::app);
     return true;
+}
+
+void getfilepath(const char *path, const char *filename, char *filePath) {
+    strcpy(filePath, path);
+    if (filePath[strlen(path) - 1] != '/')
+        strcat(filePath, "/");
+    strcat(filePath, filename);
+}
+
+bool deleteFilesInDir(const char *path) {
+    DIR *dir;
+    struct dirent *dirinfo;
+    struct stat statbuf;
+    char filepath[256] = {0};
+    lstat(path, &statbuf);
+
+    // it's a file
+    if (S_ISREG(statbuf.st_mode)) {
+        remove(path);
+    }
+    // it's a directory
+    else if (S_ISDIR(statbuf.st_mode)) {
+        if ((dir = opendir(path)) == NULL)
+            return 1;
+        while ((dirinfo = readdir(dir)) != NULL) {
+            getfilepath(path, dirinfo->d_name, filepath);
+            if (strcmp(dirinfo->d_name, ".") == 0 || strcmp(dirinfo->d_name, "..") == 0)
+                continue;
+            deleteFilesInDir(filepath);
+            rmdir(filepath);
+        }
+        closedir(dir);
+    }
+    return 0;
 }

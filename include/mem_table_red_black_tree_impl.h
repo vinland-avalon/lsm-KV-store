@@ -19,42 +19,44 @@
 class RedBlackTreeMemTable : public MemTable {
   public:
     RedBlackTreeMemTable() {
-        this->table = new std::multimap<std::string, std::shared_ptr<Command>>();
+        this->table = new std::map<std::string, std::shared_ptr<Command>>();
     }
-    std::shared_ptr<Command> get(std::string key) {
-        it = table->find(key);
+    std::shared_ptr<Command> Get(std::string key) const {
+        auto it = table->find(key);
         if (it == table->end()) {
             return nullptr;
         }
         return it->second;
     }
-    void set(std::string key, std::shared_ptr<Command> command) {
+    void Set(std::string key, std::shared_ptr<Command> command) {
         table->insert(std::make_pair(key, command));
     }
-    void remove(std::string key) {
+    void Remove(std::string key) {
         table->erase(key);
     }
+
     // features about iterator
-    void reachBegin() {
+    void ReachBegin() {
         this->it = table->begin();
     };
-    std::shared_ptr<Command> curr() {
+    std::shared_ptr<Command> Curr() const {
         if (it == table->end()) {
             return nullptr;
         } else {
             return it->second;
         }
     };
-    void next() {
+    void Next() {
         it++;
     };
-    long size() {
+    // todo: cal size in bytes
+    long Size() const {
         return table->size();
     }
 
   private:
-    std::multimap<std::string, std::shared_ptr<Command> > *table;
-    std::multimap<std::string, std::shared_ptr<Command>>::iterator it;
+    std::map<std::string, std::shared_ptr<Command> > *table;
+    std::map<std::string, std::shared_ptr<Command>>::iterator it;
 };
 
 #endif

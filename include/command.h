@@ -23,21 +23,21 @@ using json = nlohmann::json;
 class Command {
   public:
     Command(std::string _type, std::string _key) : type(_type), key(_key) {}
-    std::string getKey() {
+    std::string GetKey() const {
         return this->key;
     };
-    virtual json toJSON() = 0;
+    virtual json ToJSON() const = 0;
     /**
      * @description:
      * @param {fstream} *f
      * @return long: the size of serialized command
      */
-    long writeCommandToFile(std::fstream *f) {
-        std::string commandString = this->toJSON().dump();
-        writeStringToFile(commandString, f);
-        return commandString.size();
+    long WriteCommandToFile(std::fstream *f) const {
+        std::string command_string = this->ToJSON().dump();
+        WriteStringToFile(command_string, f);
+        return command_string.size();
     }
-    std::string getType() {
+    std::string GetType() const {
         return this->type;
     }
 
@@ -49,7 +49,7 @@ class Command {
 class RmCommand : public Command {
   public:
     RmCommand(std::string _type, std::string _key) : Command(_type, _key) {}
-    json toJSON() {
+    json ToJSON() const {
         json record;
         record["key"] = key;
         record["type"] = type;
@@ -60,14 +60,14 @@ class RmCommand : public Command {
 class SetCommand : public Command {
   public:
     SetCommand(std::string _type, std::string _key, std::string _value) : Command(_type, _key), value(_value) {}
-    json toJSON() {
+    json ToJSON() const {
         json record;
         record["key"] = key;
         record["type"] = type;
         record["value"] = value;
         return record;
     }
-    std::string getValue() {
+    std::string GetValue() const {
         return this->value;
     }
 

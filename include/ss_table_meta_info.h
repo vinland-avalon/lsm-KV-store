@@ -17,78 +17,78 @@
 
 class TableMetaInfo {
   private:
-    long version;
-    long dataStart;
-    long dataLen;
-    long indexStart;
-    long indexLen;
-    long partitionSize;
+    long version_;
+    long commands_start_;
+    long commands_len_;
+    long index_start_;
+    long index_len_;
+    long partition_size_;
 
   public:
     /**
-     * @description: write metadata to file
+     * @description: write metacommands to file
      * @param {fstream} *file
      * @return {*}
      */
-    void writeToFile(std::fstream *file) {
-        (*file).write((const char *)&partitionSize, sizeof(long));
-        (*file).write((const char *)&dataStart, sizeof(long));
-        (*file).write((const char *)&dataLen, sizeof(long));
-        (*file).write((const char *)&indexStart, sizeof(long));
-        (*file).write((const char *)&indexLen, sizeof(long));
-        (*file).write((const char *)&version, sizeof(long));
+    void WriteToFile(std::fstream *file) {
+        (*file).write((const char *)&partition_size_, sizeof(partition_size_));
+        (*file).write((const char *)&commands_start_, sizeof(commands_start_));
+        (*file).write((const char *)&commands_len_, sizeof(commands_len_));
+        (*file).write((const char *)&index_start_, sizeof(index_start_));
+        (*file).write((const char *)&index_len_, sizeof(index_len_));
+        (*file).write((const char *)&version_, sizeof(version_));
         file->clear();
     }
     /**
-     * @description: init a tableMetaInfo structure from file;
+     * @description: init a table_meta_info_ structure from file;
      * @param {fstream*} file
      * @return {*}
      */
-    void readFromFile(std::fstream *file) {
-        long len = calLenOfMetaInfo();
+    void ReadFromFile(std::fstream *file) {
+        long len = CalLenOfMetaInfo();
         file->seekg(-len, std::ios::end);
-        (*file).read((char *)&partitionSize, sizeof(long));
-        (*file).read((char *)&dataStart, sizeof(long));
-        (*file).read((char *)&dataLen, sizeof(long));
-        (*file).read((char *)&indexStart, sizeof(long));
-        (*file).read((char *)&indexLen, sizeof(long));
-        (*file).read((char *)&version, sizeof(long));
+        (*file).read((char *)&partition_size_, sizeof(partition_size_));
+        (*file).read((char *)&commands_start_, sizeof(commands_start_));
+        (*file).read((char *)&commands_len_, sizeof(commands_len_));
+        (*file).read((char *)&index_start_, sizeof(index_start_));
+        (*file).read((char *)&index_len_, sizeof(index_len_));
+        (*file).read((char *)&version_, sizeof(version_));
     }
 
-    long calLenOfMetaInfo() {
+    long CalLenOfMetaInfo() const {
         return sizeof(long) * 6;
     }
     // TableMetaInfo(std::fstream* file){}
     // TableMetaInfo(){}
-    long getPartitionSize() {
-        return this->partitionSize;
+    long GetPartitionSize() const {
+        return partition_size_;
     }
-    void setPartitionSize(long partitionSize) {
-        this->partitionSize = partitionSize;
+    void SetPartitionSize(long partition_size) {
+        partition_size_ = partition_size;
     }
-    long getDataStart() {
-        return this->dataStart;
+    long GetCommandsStart() const {
+        return commands_start_;
     }
-    void setDataStart(long dataStart) {
-        this->dataStart = dataStart;
+    void SetCommandsStart(long commands_start) {
+        commands_start_ = commands_start;
     }
-    long getDataLen() {
-        return this->dataLen;
+    long GetCommandsLen() const {
+        return commands_len_;
     }
-    void setDataLen(long dataLen) {
-        this->dataLen = dataLen;
+    void SetCommandsLen(long commands_len) {
+        commands_len_ = commands_len;
     }
-    long getIndexLen() {
-        return this->indexLen;
+    long GetIndexLen() const {
+        return index_len_;
     }
-    void setIndexLen(long indexLen) {
-        this->indexLen = indexLen;
+    void SetIndexLen(long index_len) {
+        index_len_ = index_len;
     }
-    long getIndexStart() {
-        return this->indexStart;
+    long GetIndexStart() const {
+        return index_start_;
     }
-    void setIndexStart(long indexStart) {
-        this->indexStart = indexStart;
+    void SetIndexStart(long index_start) {
+        index_start_ = index_start;
     }
 };
 

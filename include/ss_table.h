@@ -28,30 +28,30 @@ using json = nlohmann::json;
 class SsTable {
   public:
     ~SsTable() {
-        tableFile.close();
+        table_file_stream_.close();
     }
     // todo: single instance mode
-    std::shared_ptr<TableMetaInfo> getTableMetaInfo() { return this->tableMetaInfo; }
+    std::shared_ptr<TableMetaInfo> GetTableMetaInfo() { return table_meta_info_; }
 
-    static std::shared_ptr<SsTable> initFromMemTableAndFlushToSSD(std::shared_ptr<MemTable> memTable, int partitionSize, std::string _filePath) {
-        try{
-            if(memTable == nullptr) {
-                spdlog::error("[SsTable][initFromMemTableAndFlushToSSD] *memTable is nullptr");
-                throw "*memTable is nullptr";
+    static std::shared_ptr<SsTable> InitFromMemTableAndFlushToSSD(std::shared_ptr<MemTable> mem_table, int partition_size, std::string file_path) {
+        try {
+            if (mem_table == nullptr) {
+                spdlog::error("[SsTable][InitFromMemTableAndFlushToSSD] *mem_table is nullptr");
+                throw "*mem_table is nullptr";
             }
-            std::shared_ptr<SsTable> ssTable = std::shared_ptr<SsTable>(new SsTable(_filePath, partitionSize));
-            ssTable->initFromMemTable(memTable);
+            std::shared_ptr<SsTable> ssTable = std::shared_ptr<SsTable>(new SsTable(file_path, partition_size));
+            ssTable->InitFromMemTable(mem_table);
             return ssTable;
         } catch (...) {
             throw;
         }
     }
 
-    static std::shared_ptr<SsTable> initFromSSD(std::string _filePath) {
-        try{
-            std::shared_ptr<SsTable> ssTable = std::shared_ptr<SsTable>(new SsTable(_filePath));
-            ssTable->reloadWithGivenSSDFile(_filePath);
-            return ssTable;
+    static std::shared_ptr<SsTable> InitFromSSD(std::string file_path) {
+        try {
+            std::shared_ptr<SsTable> ss_table = std::shared_ptr<SsTable>(new SsTable());
+            ss_table->ReloadWithGivenSSDFile(file_path);
+            return ss_table;
         } catch (...) {
             throw;
         }
@@ -64,71 +64,76 @@ class SsTable {
      * @param {string} key
      * @return {*}
      */
-    std::shared_ptr<Command> query(std::string key) {
+    std::shared_ptr<Command> Query(std::string key) {
         // start, len
-        std::pair<long, long> lowerBoundBlock(-1, -1);
-        for (auto it = sparseIndex->begin(); it != sparseIndex->end(); it++) {
+        std::pair<long, long> lower_bound_block(-1, -1);
+        for (auto it = sparse_index_->begin(); it != sparse_index_->end(); it++) {
             if (it->first <= key) {
-                lowerBoundBlock.first = it->second.first;
-                lowerBoundBlock.second = it->second.second;
+                lower_bound_block.first = it->second.first;
+                lower_bound_block.second = it->second.second;
             }
         }
-        if (lowerBoundBlock.first == -1){
-            spdlog::info("[SsTable][query] not even found right block in this block");
+        if (lower_bound_block.first == -1) {
+            spdlog::info("[SsTable][Query] not even found right block in this block");
             return nullptr;
         }
-            
 
         // load sparse index
         char buffer[1000];
-        tableFile.seekg(lowerBoundBlock.first);
-        tableFile.read(buffer, lowerBoundBlock.second);
+        table_file_stream_.seekg(lower_bound_block.first);
+        table_file_stream_.read(buffer, lower_bound_block.second);
         // std::string blockString = buffer;
         // {"key1":{"key":"key1","type":"SET","value":"100"}}{"key2":{"key":"key2","type":"SET","value":"101"}}
-        json blockJSON = json::parse(buffer);
-        spdlog::info("[SsTable][query] the needed command maybe in this block, data:{}", blockJSON.dump());
+        json block_JSON = json::parse(buffer);
+        spdlog::info("[SsTable][Query] the needed command maybe in this block, data:{}", block_JSON.dump());
 
-        for (json::iterator it = blockJSON.begin(); it != blockJSON.end(); ++it) {
-            //std::cout << "[query] reload command in block: " << it.key() << " : " << it.value() << "\n";
+        for (json::iterator it = block_JSON.begin(); it != block_JSON.end(); ++it) {
+            // std::cout << "[query] reload command in block: " << it.key() << " : " << it.value() << "\n";
             if (it.key() == key) {
-                spdlog::info("[SsTable][query] get the needed command:{}", it.value().dump());
+                spdlog::info("[SsTable][Query] get the needed command:{}", it.value().dump());
                 return JSONtoCommand(it.value());
             }
         }
         return nullptr;
     }
-    
+
     // void writecommands(json commands) {}
 
   private:
-    std::shared_ptr<TableMetaInfo> tableMetaInfo;
-    std::fstream tableFile;
-    // sparseIndex:{ key: {start, len}}
-    std::shared_ptr<std::map<std::string, std::pair<long, long>>> sparseIndex;
-    std::string filePath;
-    SsTable(std::string _filePath, int _partitionSize = 0) {
+    std::shared_ptr<TableMetaInfo> table_meta_info_;
+    std::fstream table_file_stream_;
+    // sparse_index_:{ key: {start, len}}
+    std::shared_ptr<std::map<std::string, std::pair<long, long>>> sparse_index_;
+    std::string file_path_;
+
+    SsTable(std::string file_path, int partition_size) {
         try {
-            this->tableMetaInfo = std::shared_ptr<TableMetaInfo>(new TableMetaInfo());
-            this->tableMetaInfo->setPartitionSize(_partitionSize);
-            this->filePath = _filePath;
-            this->sparseIndex = std::shared_ptr<std::map<std::string, std::pair<long, long>>>(new std::map<std::string, std::pair<long, long>>());
-            openFileAndCreateOneWhenNotExist(&(this->tableFile), this->filePath);
-            //tableFile.open(_filePath, std::ios::in | std::ios::out | std::ios::binary);
-            if (!tableFile.is_open()) {
-                spdlog::error("[SsTable][Constructor] fail to open file {}", this->filePath);
+            table_meta_info_ = std::shared_ptr<TableMetaInfo>(new TableMetaInfo());
+            table_meta_info_->SetPartitionSize(partition_size);
+            file_path_ = file_path;
+            sparse_index_ = std::shared_ptr<std::map<std::string, std::pair<long, long>>>(new std::map<std::string, std::pair<long, long>>());
+            OpenFileAndCreateOneWhenNotExist(&(table_file_stream_), file_path_);
+            // table_file_stream_.open(_filePath, std::ios::in | std::ios::out | std::ios::binary);
+            if (!table_file_stream_.is_open()) {
+                spdlog::error("[SsTable][Constructor] fail to open file {}", file_path_);
                 throw "Fail to open file";
             }
-            tableFile.seekp(0);
-            tableFile.seekg(0);
-            spdlog::info("[SsTable][Constructor] initialized an instance, filePath: {}, metainfo.partitionSize: {}", this->filePath, this->tableMetaInfo->getPartitionSize());
+            table_file_stream_.seekp(0);
+            table_file_stream_.seekg(0);
+            spdlog::info("[SsTable][Constructor] initialized an instance, file_path_: {}, metainfo.partition_size: {}", file_path_, table_meta_info_->GetPartitionSize());
         } catch (std::string error) {
             throw error;
         } catch (std::exception &error) {
-            tableFile.close();
+            table_file_stream_.close();
             throw error;
         }
     }
-    
+
+    SsTable(){
+        table_meta_info_ = std::shared_ptr<TableMetaInfo>(new TableMetaInfo());
+        sparse_index_ = std::shared_ptr<std::map<std::string, std::pair<long, long>>>(new std::map<std::string, std::pair<long, long>>());
+    }
+
     /**
      * @description: init from memtable and flush memtable to sstable
      * @param {string} _filePath
@@ -136,49 +141,48 @@ class SsTable {
      * @param {MemTable*} memtable
      * @return {*} the pointer to SsTable
      */
-    void initFromMemTable(std::shared_ptr<MemTable> memtable) {
+    void InitFromMemTable(std::shared_ptr<MemTable> mem_table) {
         // calculate metadata
-        tableMetaInfo->setDataStart(tableFile.tellp());
+        table_meta_info_->SetCommandsStart(table_file_stream_.tellp());
 
         // flush to SSD, part by part
         json commands;
-        memtable->reachBegin();
-        while (memtable->curr()) {
-            commands[memtable->curr()->getKey()] = memtable->curr()->toJSON();
-            std::cout << " get record: " << commands << std::endl;
-            spdlog::info("[SsTable][initFromMemTable] get command {} from immutableMemTable", memtable->curr()->toJSON().dump());
-            memtable->next();
-            if (commands.size() >= tableMetaInfo->getPartitionSize()) {
-                writeToSSDandClearAndAppendSparseIndex(&commands);
+        mem_table->ReachBegin();
+        while (mem_table->Curr()) {
+            commands[mem_table->Curr()->GetKey()] = mem_table->Curr()->ToJSON();
+            // std::cout << " get record: " << commands << std::endl;
+            spdlog::info("[SsTable][initFromMemTable] get command {} from immutableMemTable", mem_table->Curr()->ToJSON().dump());
+            mem_table->Next();
+            if (commands.size() >= table_meta_info_->GetPartitionSize()) {
+                WriteToSSDandClearAndAppendSparseIndex(&commands);
             }
         }
         if (commands.size() > 0) {
-            writeToSSDandClearAndAppendSparseIndex(&commands);
+            WriteToSSDandClearAndAppendSparseIndex(&commands);
         }
-
 
         // calculate metadata
-        long dataPartLen = tableFile.tellp() - tableMetaInfo->getDataStart();
-        tableMetaInfo->setDataLen(dataPartLen);
+        long dataPartLen = table_file_stream_.tellp() - table_meta_info_->GetCommandsStart();
+        table_meta_info_->SetCommandsLen(dataPartLen);
 
         // save sparse index and calculate metadata
-        tableMetaInfo->setIndexStart(tableFile.tellp());
-        json sparseIndexJSON;
-        for (auto singleSparkIndex : (*sparseIndex)) {
+        table_meta_info_->SetIndexStart(table_file_stream_.tellp());
+        json sparse_index_JSON;
+        for (auto single_sparse_index_JSON : (*sparse_index_)) {
             // key:{start, len}
-            sparseIndexJSON[singleSparkIndex.first] = (json{singleSparkIndex.second.first, singleSparkIndex.second.second});
+            sparse_index_JSON[single_sparse_index_JSON.first] = (json{single_sparse_index_JSON.second.first, single_sparse_index_JSON.second.second});
         }
-        std::string sparseIndexString = sparseIndexJSON.dump();
-        spdlog::info("[SsTable][initFromMemTable] sparse index: {}", sparseIndexString);
-        writeStringToFile(sparseIndexString, &tableFile);
+        std::string sparse_index_string = sparse_index_JSON.dump();
+        spdlog::info("[SsTable][InitFromMemTable] sparse index: {}", sparse_index_string);
+        WriteStringToFile(sparse_index_string, &table_file_stream_);
         // tableFile.write(sparseIndexString.c_str(), sparseIndexString.size() + 1);
-        // tableFile << sparseIndex;
-        tableMetaInfo->setIndexLen(tableFile.tellp() - tableMetaInfo->getIndexStart());
+        // tableFile << sparse_index_;
+        table_meta_info_->SetIndexLen(table_file_stream_.tellp() - table_meta_info_->GetIndexStart());
 
         // save metadata
-        tableMetaInfo->writeToFile(&tableFile);
+        table_meta_info_->WriteToFile(&table_file_stream_);
 
-        tableFile.flush();
+        table_file_stream_.flush();
     }
 
     /**
@@ -187,15 +191,25 @@ class SsTable {
      * @param {string} _filePath
      * @return {*}
      */
-    void reloadWithGivenSSDFile(std::string _filePath) {
+    void ReloadWithGivenSSDFile(std::string file_path) {
+        // bound to SSD
+        file_path_ = file_path;
+        OpenFileAndCreateOneWhenNotExist(&(table_file_stream_), file_path_);
+        if (!table_file_stream_.is_open()) {
+            spdlog::error("[SsTable][ReloadWithGivenSSDFile] fail to open file {}", file_path_);
+            throw "Fail to open file";
+        }
+        table_file_stream_.seekp(0);
+        table_file_stream_.seekg(0);
+        spdlog::info("[SsTable][ReloadWithGivenSSDFile] initialized an instance, file_path_: {}, metainfo.partition_size: {}", file_path_, table_meta_info_->GetPartitionSize());
+        
         // load metadata
-        this->tableMetaInfo = std::shared_ptr<TableMetaInfo>(new TableMetaInfo());
-        tableMetaInfo->readFromFile(&(this->tableFile));
+        table_meta_info_->ReadFromFile(&(table_file_stream_));
 
         // load sparse index
         char buffer[1000];
-        tableFile.seekg(tableMetaInfo->getIndexStart());
-        tableFile.read(buffer, tableMetaInfo->getIndexLen());
+        table_file_stream_.seekg(table_meta_info_->GetIndexStart());
+        table_file_stream_.read(buffer, table_meta_info_->GetIndexLen());
 
         // std::string sparseIndexString = buffer;
 
@@ -208,7 +222,7 @@ class SsTable {
 
         for (json::iterator it = tmpJSONcommands.begin(); it != tmpJSONcommands.end(); ++it) {
             // std::cout << "[initFromFile] reload sparse index: " << it.key() << " : " << it.value() << "\n";
-            sparseIndex->emplace(it.key(), std::pair<long, long>(it.value().at(0), it.value().at(1)));
+            sparse_index_->emplace(it.key(), std::pair<long, long>(it.value().at(0), it.value().at(1)));
         }
     }
 
@@ -217,17 +231,17 @@ class SsTable {
      * @param {json} *commands
      * @return {*}
      */
-    void writeToSSDandClearAndAppendSparseIndex(json *commands) {
+    void WriteToSSDandClearAndAppendSparseIndex(json *commands) {
         spdlog::info("[SsTable][writeToSSDandClearAndAppendSparseIndex] write commands: {}", commands->dump());
         std::string key = (*(commands->begin()))["key"];
-        long start = tableFile.tellp();
+        long start = table_file_stream_.tellp();
 
-        writeStringToFile(commands->dump(), &tableFile);
-        
+        WriteStringToFile(commands->dump(), &table_file_stream_);
+
         commands->clear();
-        
-        long len = tableFile.tellp() - start;
-        sparseIndex->emplace(key, std::pair<long, long>(start, len));
+
+        long len = table_file_stream_.tellp() - start;
+        sparse_index_->emplace(key, std::pair<long, long>(start, len));
     }
 };
 

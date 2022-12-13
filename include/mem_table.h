@@ -17,17 +17,17 @@
 // iterator
 class MemTable {
   public:
-    virtual std::shared_ptr<Command> get(std::string key) = 0;
-    virtual void set(std::string key, std::shared_ptr<Command> command) = 0;
+    virtual std::shared_ptr<Command> Get(std::string key) const = 0;
+    virtual void Set(std::string key, std::shared_ptr<Command> command) = 0;
     // remove: in fact, won't be called
-    virtual void remove(std::string key) = 0;
-    virtual long size() = 0;
+    virtual void Remove(std::string key) = 0;
+    virtual long Size() const = 0;
 
     // features about iterator
     // since they are only used when flushing immmutable memtable to SSD, it is not necessary to consider concurrency
-    virtual void reachBegin() = 0;
-    virtual std::shared_ptr<Command> curr() = 0;
-    virtual void next() = 0;
+    virtual void ReachBegin() = 0;
+    virtual std::shared_ptr<Command> Curr() const = 0;
+    virtual void Next() = 0;
 };
 
 #endif

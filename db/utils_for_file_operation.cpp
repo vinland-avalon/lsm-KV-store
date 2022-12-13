@@ -21,7 +21,7 @@
 #include <unistd.h>
 #include <vector>
 
-bool isSolidDirectory(const std::string dir_path) {
+bool IsSolidDirectory(const std::string dir_path) {
     // check if dir_name is a valid dir
     struct stat s;
     if (lstat(dir_path.c_str(), &s) < 0) {
@@ -40,7 +40,7 @@ bool isSolidDirectory(const std::string dir_path) {
  * @param {char} *dir_name
  * @return {*}
  */
-std::vector<std::string> getFilenamesInDirectory(const std::string dir_path) {
+std::vector<std::string> GetFilenamesInDirectory(const std::string dir_path) {
     std::vector<std::string> filenames;
     for (const auto &entry : std::filesystem::directory_iterator(dir_path)) {
         auto filename = entry.path().filename().string();
@@ -61,34 +61,34 @@ std::vector<std::string> getFilenamesInDirectory(const std::string dir_path) {
  * @param {string} sub
  * @return {*}
  */
-bool endsWith(std::string s, std::string sub) {
+bool EndsWith(std::string s, std::string sub) {
     return s.rfind(sub) == (s.length() - sub.length()) ? true : false;
 }
 
-void writeStringToFile(std::string s, std::fstream *f) {
+void WriteStringToFile(std::string s, std::fstream *f) {
     f->write(s.c_str(), s.size() + 1);
 }
 
-bool isFileExisting(std::string name) {
+bool IsFileExisting(std::string name) {
     struct stat buffer;
     return (stat(name.c_str(), &buffer) == 0);
 }
 
-bool openFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath) {
+bool OpenFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath) {
     f->open(filePath, std::ios::out | std::ios::binary | std::ios::app);
     f->close();
     f->open(filePath, std::ios::out | std::ios::binary | std::ios::in | std::ios::app);
     return true;
 }
 
-void getfilepath(const char *path, const char *filename, char *filePath) {
+void Getfilepath(const char *path, const char *filename, char *filePath) {
     strcpy(filePath, path);
     if (filePath[strlen(path) - 1] != '/')
         strcat(filePath, "/");
     strcat(filePath, filename);
 }
 
-bool deleteFilesInDir(const char *path) {
+bool DeleteFilesInDir(const char *path) {
     DIR *dir;
     struct dirent *dirinfo;
     struct stat statbuf;
@@ -104,10 +104,10 @@ bool deleteFilesInDir(const char *path) {
         if ((dir = opendir(path)) == NULL)
             return 1;
         while ((dirinfo = readdir(dir)) != NULL) {
-            getfilepath(path, dirinfo->d_name, filepath);
+            Getfilepath(path, dirinfo->d_name, filepath);
             if (strcmp(dirinfo->d_name, ".") == 0 || strcmp(dirinfo->d_name, "..") == 0)
                 continue;
-            deleteFilesInDir(filepath);
+            DeleteFilesInDir(filepath);
             rmdir(filepath);
         }
         closedir(dir);

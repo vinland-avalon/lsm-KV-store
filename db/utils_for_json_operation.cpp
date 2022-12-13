@@ -5,13 +5,13 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-std::shared_ptr<Command> JSONtoCommand(json jCommand) {
+std::shared_ptr<Command> JSONtoCommand(json command_JSON) {
     std::shared_ptr<Command> command;
-    if (jCommand["type"] == "SET") {
+    if (command_JSON["type"] == "SET") {
         std::shared_ptr<std::string> ss = std::shared_ptr<std::string>(new std::string("AAA"));
-        command = std::shared_ptr<Command>(new SetCommand("SET", jCommand["key"], jCommand["value"]));
-    } else if (jCommand["type"] == "RM") {
-        command = std::shared_ptr<Command>(new RmCommand("RM", jCommand["key"]));
+        command = std::shared_ptr<Command>(new SetCommand("SET", command_JSON["key"], command_JSON["value"]));
+    } else if (command_JSON["type"] == "RM") {
+        command = std::shared_ptr<Command>(new RmCommand("RM", command_JSON["key"]));
     } else {
         command = nullptr;
     }

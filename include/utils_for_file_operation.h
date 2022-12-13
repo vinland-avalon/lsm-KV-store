@@ -15,13 +15,13 @@
 #include <string>
 #include <vector>
 
-bool isSolidDirectory(const std::string dir_path);
-std::vector<std::string> getFilenamesInDirectory(const std::string dir_path);
-bool endsWith(std::string s, std::string sub);
-void writeStringToFile(std::string s, std::fstream *f);
-bool isFileExisting(std::string name);
-bool openFileAndCreateOneWhenNotExist(std::fstream *f, std::string filePath);
-bool deleteFilesInDir(const char *path);
+bool IsSolidDirectory(const std::string dir_path);
+std::vector<std::string> GetFilenamesInDirectory(const std::string dir_path);
+bool EndsWith(std::string s, std::string sub);
+void WriteStringToFile(std::string s, std::fstream *f);
+bool IsFileExisting(std::string name);
+bool OpenFileAndCreateOneWhenNotExist(std::fstream *f, std::string file_path);
+bool DeleteFilesInDir(const char *path);
 
 
 #endif

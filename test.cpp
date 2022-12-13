@@ -24,15 +24,15 @@ TEST(FooTest, test0) {
 }
 
 TEST(UtilsForFileOperation, test){
-    EXPECT_EQ(isSolidDirectory("."), true);
-    EXPECT_EQ(isSolidDirectory("invalid_dir"), false);
-    EXPECT_GT(getFilenamesInDirectory(".").size(), 0);
-    EXPECT_EQ(isFileExisting("test.cpp"), true);
-    EXPECT_EQ(isFileExisting("invalid_file"), false);
+    EXPECT_EQ(IsSolidDirectory("."), true);
+    EXPECT_EQ(IsSolidDirectory("invalid_dir"), false);
+    EXPECT_GT(GetFilenamesInDirectory(".").size(), 0);
+    EXPECT_EQ(IsFileExisting("test.cpp"), true);
+    EXPECT_EQ(IsFileExisting("invalid_file"), false);
 }
 
 TEST(PreWork, ClearDataDirectory){
-    deleteFilesInDir("./data");
+    DeleteFilesInDir("./data");
 }
 
 TEST(WholeWorkingFlow, SetKey1){

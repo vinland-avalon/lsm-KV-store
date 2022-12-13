@@ -14,6 +14,6 @@
 #include <string>
 #include <sys/time.h>
 
-std::string getSystemTimeInMills();
+std::string GetSystemTimeInMills();
 
 #endif

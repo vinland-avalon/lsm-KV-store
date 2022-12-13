@@ -5,6 +5,6 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-std::shared_ptr<Command> JSONtoCommand(json jCommand);
+std::shared_ptr<Command> JSONtoCommand(json command_JSON);
 
 #endif

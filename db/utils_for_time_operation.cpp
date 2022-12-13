@@ -11,7 +11,7 @@
 #include <string>
 #include <sys/time.h>
 
-std::string getSystemTimeInMills() {
+std::string GetSystemTimeInMills() {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     return std::to_string(tv.tv_sec) + std::to_string(tv.tv_usec);

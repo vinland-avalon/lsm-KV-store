@@ -41,6 +41,8 @@ public:
     V get_value() const;
 
     void set_value(V);
+
+    Node<K, V>* next();
     
     // Linear array to hold pointers to next node of different level
     Node<K, V> **forward;
@@ -63,6 +65,11 @@ Node<K, V>::Node(const K k, const V v, int level) {
     
 	// Fill forward array with 0(NULL) 
     memset(this->forward, 0, sizeof(Node<K, V>*)*(level+1));
+};
+
+template<typename K, typename V> 
+Node<K, V>* Node<K, V>::next() {
+    return forward[node_level];
 };
 
 template<typename K, typename V> 

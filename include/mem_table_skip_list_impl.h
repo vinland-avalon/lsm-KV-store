@@ -45,6 +45,6 @@ class SkipListMemTable {
   private:
     std::shared_ptr<SkipList<std::string, std::shared_ptr<Command>>> skip_list_ = nullptr;
     int max_level_;
-}
+};
 
 #endif

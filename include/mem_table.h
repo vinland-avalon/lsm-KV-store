@@ -18,6 +18,7 @@
 class MemTable {
   public:
     virtual std::shared_ptr<Command> Get(std::string key) const = 0;
+    // todo: return bool in Set and Remove
     virtual void Set(std::string key, std::shared_ptr<Command> command) = 0;
     // remove: in fact, won't be called
     virtual void Remove(std::string key) = 0;

@@ -95,7 +95,7 @@ public:
     Node<K, V>* create_node(K, V, int);
     int insert_element(K, V);
     void display_list();
-    bool search_element(K);
+    V search_element(K);
     void delete_element(K);
     void dump_file();
     void load_file();
@@ -177,7 +177,7 @@ int SkipList<K, V>::insert_element(const K key, const V value) {
 
     // if current node have key equal to searched key, we get it
     if (current != NULL && current->get_key() == key) {
-        std::cout << "key: " << key << ", exists" << std::endl;
+        // std::cout << "key: " << key << ", exists" << std::endl;
         mtx.unlock();
         return 1;
     }
@@ -205,7 +205,7 @@ int SkipList<K, V>::insert_element(const K key, const V value) {
             inserted_node->forward[i] = update[i]->forward[i];
             update[i]->forward[i] = inserted_node;
         }
-        std::cout << "Successfully inserted key:" << key << ", value:" << value << std::endl;
+        // std::cout << "Successfully inserted key:" << key << ", value:" << value << std::endl;
         _element_count ++;
     }
     mtx.unlock();
@@ -216,15 +216,15 @@ int SkipList<K, V>::insert_element(const K key, const V value) {
 template<typename K, typename V> 
 void SkipList<K, V>::display_list() {
 
-    std::cout << "\n*****Skip List*****"<<"\n"; 
+    // std::cout << "\n*****Skip List*****"<<"\n"; 
     for (int i = 0; i <= _skip_list_level; i++) {
         Node<K, V> *node = this->_header->forward[i]; 
-        std::cout << "Level " << i << ": ";
+        // std::cout << "Level " << i << ": ";
         while (node != NULL) {
-            std::cout << node->get_key() << ":" << node->get_value() << ";";
+            // std::cout << node->get_key() << ":" << node->get_value() << ";";
             node = node->forward[i];
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
     }
 }
 
@@ -232,13 +232,13 @@ void SkipList<K, V>::display_list() {
 template<typename K, typename V> 
 void SkipList<K, V>::dump_file() {
 
-    std::cout << "dump_file-----------------" << std::endl;
+    // std::cout << "dump_file-----------------" << std::endl;
     _file_writer.open(STORE_FILE);
     Node<K, V> *node = this->_header->forward[0]; 
 
     while (node != NULL) {
         _file_writer << node->get_key() << ":" << node->get_value() << "\n";
-        std::cout << node->get_key() << ":" << node->get_value() << ";\n";
+        // std::cout << node->get_key() << ":" << node->get_value() << ";\n";
         node = node->forward[0];
     }
 
@@ -252,7 +252,7 @@ template<typename K, typename V>
 void SkipList<K, V>::load_file() {
 
     _file_reader.open(STORE_FILE);
-    std::cout << "load_file-----------------" << std::endl;
+    // std::cout << "load_file-----------------" << std::endl;
     std::string line;
     std::string* key = new std::string();
     std::string* value = new std::string();
@@ -262,7 +262,7 @@ void SkipList<K, V>::load_file() {
             continue;
         }
         insert_element(*key, *value);
-        std::cout << "key:" << *key << "value:" << *value << std::endl;
+        // std::cout << "key:" << *key << "value:" << *value << std::endl;
     }
     _file_reader.close();
 }
@@ -330,7 +330,7 @@ void SkipList<K, V>::delete_element(K key) {
             _skip_list_level --; 
         }
 
-        std::cout << "Successfully deleted key "<< key << std::endl;
+        // std::cout << "Successfully deleted key "<< key << std::endl;
         _element_count --;
     }
     mtx.unlock();
@@ -357,9 +357,9 @@ level 1         1    4     10         30         50|           70       100
 level 0         1    4   9 10         30   40    50+-->60      70       100
 */
 template<typename K, typename V> 
-bool SkipList<K, V>::search_element(K key) {
+V SkipList<K, V>::search_element(K key) {
 
-    std::cout << "search_element-----------------" << std::endl;
+    // std::cout << "search_element-----------------" << std::endl;
     Node<K, V> *current = _header;
 
     // start from highest level of skip list
@@ -374,12 +374,12 @@ bool SkipList<K, V>::search_element(K key) {
 
     // if current node have key equal to searched key, we get it
     if (current and current->get_key() == key) {
-        std::cout << "Found key: " << key << ", value: " << current->get_value() << std::endl;
-        return true;
+        // std::cout << "Found key: " << key << ", value: " << current->get_value() << std::endl;
+        return current->get_value();
     }
 
-    std::cout << "Not Found Key:" << key << std::endl;
-    return false;
+    // std::cout << "Not Found Key:" << key << std::endl;
+    return nullptr;
 }
 
 // construct skip list

@@ -55,7 +55,7 @@ class RedBlackTreeMemTable : public MemTable {
     }
 
   private:
-    std::map<std::string, std::shared_ptr<Command> > *table;
+    std::map<std::string, std::shared_ptr<Command>> *table;
     std::map<std::string, std::shared_ptr<Command>>::iterator it;
 };
 

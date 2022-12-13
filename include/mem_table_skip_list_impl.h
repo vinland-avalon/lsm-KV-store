@@ -8,3 +8,43 @@
  *
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
+
+#ifndef _SKIP_LIST_MEM_TABLE_H_
+#define _SKIP_LIST_MEM_TABLE_H_
+
+#include "command.h"
+#include "skip_list.h"
+#include <string>
+
+class SkipListMemTable {
+  public:
+    SkipListMemTable(int max_level) {
+        max_level_ = max_level;
+        skip_list_ = std::shared_ptr<SkipList<std::string, std::shared_ptr<Command>>>(new SkipList<std::string, std::shared_ptr<Command>>(max_level_));
+    }
+    std::shared_ptr<Command> Get(std::string key) const {
+        return skip_list_->search_element(key);
+    }
+    void Set(std::string key, std::shared_ptr<Command> command) {
+        skip_list_->insert_element(key, command);
+    }
+    // remove: in fact, won't be called
+    void Remove(std::string key) {
+        skip_list_->delete_element(key);
+    }
+    long Size() const {
+        return skip_list_->size();
+    }
+
+    // features about iterator
+    // since they are only used when flushing immmutable memtable to SSD, it is not necessary to consider concurrency
+    virtual void ReachBegin() = 0;
+    virtual std::shared_ptr<Command> Curr() const = 0;
+    virtual void Next() = 0;
+
+  private:
+    std::shared_ptr<SkipList<std::string, std::shared_ptr<Command>>> skip_list_ = nullptr;
+    int max_level_;
+}
+
+#endif

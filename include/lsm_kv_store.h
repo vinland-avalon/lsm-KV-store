@@ -16,6 +16,7 @@
 #include "kv_store.h"
 #include "mem_table.h"
 #include "mem_table_red_black_tree_impl.h"
+#include "mem_table_skip_list_impl.h"
 #include "ss_table.h"
 #include "utils_for_file_operation.h"
 #include "utils_for_json_operation.h"
@@ -38,7 +39,8 @@ class LsmKvStore : public KvStore {
         try {
             rw_lock_ptr_ = new std::shared_mutex();
             ss_tables_ = new std::list<std::shared_ptr<SsTable>>();
-            mem_table_ = std::shared_ptr<MemTable>(new RedBlackTreeMemTable());
+            // mem_table_ = std::shared_ptr<MemTable>(new RedBlackTreeMemTable());
+            mem_table_ = std::shared_ptr<MemTable>(new SkipListMemTable(10));
             if (!IsSolidDirectory(data_dir_path_)) {
                 spdlog::warn("[LsmKvStore][constructor] dataDir: {} is invalid", this->data_dir_path_);
                 // std::string will cast to std::exception
@@ -184,7 +186,7 @@ class LsmKvStore : public KvStore {
     void SwitchMemTableAndWal() {
         // switch MemTable
         immutable_mem_table_ = mem_table_;
-        mem_table_ = std::shared_ptr<RedBlackTreeMemTable>(new RedBlackTreeMemTable());
+        mem_table_ = std::shared_ptr<MemTable>(new SkipListMemTable(10));
         // switch WAL file
         wal_file_stream_ptr_->close();
         std::string wal_tmp_file_path = data_dir_path_ + "/" + WAL_TMP;
@@ -202,7 +204,6 @@ class LsmKvStore : public KvStore {
         spdlog::info("[LsmKvStore][SwitchMemTableAndWal] rename walTmp: {} to {}", wal_file_path_, wal_tmp_file_path);
         // create a new wal file
         OpenFileAndCreateOneWhenNotExist(wal_file_stream_ptr_, wal_file_path_);
-        
     }
     /**
      * @description: 1. flush immutableMemTable to brand-new file, created in the form of dataDir + system time + table_suffix

@@ -14,9 +14,10 @@
 
 #include "command.h"
 #include "skip_list.h"
+#include "skip_list_iter.h"
 #include <string>
 
-class SkipListMemTable {
+class SkipListMemTable : public MemTable {
   public:
     SkipListMemTable(int max_level) {
         max_level_ = max_level;
@@ -38,13 +39,23 @@ class SkipListMemTable {
 
     // features about iterator
     // since they are only used when flushing immmutable memtable to SSD, it is not necessary to consider concurrency
-    virtual void ReachBegin() = 0;
-    virtual std::shared_ptr<Command> Curr() const = 0;
-    virtual void Next() = 0;
+    void ReachBegin() {
+        iter_ = ListIter<Node<std::string, std::shared_ptr<Command>>>(skip_list_->front());
+    }
+    std::shared_ptr<Command> Curr() const {
+        if (iter_ == nullptr) {
+            return nullptr;
+        }
+        return iter_.Iter->get_value();
+    }
+    void Next() {
+        ++iter_;
+    }
 
   private:
     std::shared_ptr<SkipList<std::string, std::shared_ptr<Command>>> skip_list_ = nullptr;
     int max_level_;
+    ListIter<Node<std::string, std::shared_ptr<Command>>> iter_;
 };
 
 #endif

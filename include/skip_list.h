@@ -69,7 +69,7 @@ Node<K, V>::Node(const K k, const V v, int level) {
 
 template<typename K, typename V> 
 Node<K, V>* Node<K, V>::next() {
-    return forward[node_level];
+    return forward[0];
 };
 
 template<typename K, typename V> 
@@ -107,6 +107,7 @@ public:
     void dump_file();
     void load_file();
     int size();
+    Node<K, V>* front();
 
 private:
     void get_key_value_from_string(const std::string& str, std::string* key, std::string* value);
@@ -278,6 +279,11 @@ void SkipList<K, V>::load_file() {
 template<typename K, typename V> 
 int SkipList<K, V>::size() { 
     return _element_count;
+}
+
+template <typename K, typename V>
+Node<K, V> *SkipList<K, V>::front() {
+    return _header->next();
 }
 
 template<typename K, typename V>

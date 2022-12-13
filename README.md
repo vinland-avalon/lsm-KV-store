@@ -26,7 +26,7 @@
 ## Key Features
 
 * Memtables, including an active memtable and an immutable memtable
-  - implemented both in skip-list (half-done) and red-black-tree (done)
+  - implemented both in skip-list (done) and red-black-tree (done)
 * Sorted-string-table
   - implemented both in B+ tree (in development)
   - and sparse index (done) + bloom filter (in development)

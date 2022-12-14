@@ -22,6 +22,6 @@ void WriteStringToFile(std::string s, std::fstream *f);
 bool IsFileExisting(std::string name);
 bool OpenFileAndCreateOneWhenNotExist(std::fstream *f, std::string file_path);
 bool DeleteFilesInDir(const char *path);
-
+bool DeleteFile(std::string file_path);
 
 #endif

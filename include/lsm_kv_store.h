@@ -142,7 +142,12 @@ class LsmKvStore : public KvStore {
     }
 
     ~LsmKvStore() {
-        FlushSSTableAndWal();
+        PersistCommands();
+        // delete empty wal
+        wal_file_stream_ptr_->close();
+        std::string wal_file_path = data_dir_path_ + "/" + WAL;
+        DeleteFile(wal_file_path);
+        // free instances
         delete wal_file_stream_ptr_;
         delete rw_lock_ptr_;
         delete ss_tables_;
@@ -183,47 +188,45 @@ class LsmKvStore : public KvStore {
      * @discription: 2. old walfile rename to WAL_TMP, create new walFile
      * @return {*}
      */
-    void SwitchMemTableAndWal() {
+    void DegradeMemTableToImmutableMemTable() {
         // switch MemTable
         immutable_mem_table_ = mem_table_;
         mem_table_ = std::shared_ptr<MemTable>(new SkipListMemTable(10));
+    }
+    void RenameWALToWALTMP() {
         // switch WAL file
         wal_file_stream_ptr_->close();
         std::string wal_tmp_file_path = data_dir_path_ + "/" + WAL_TMP;
         // If there is wal_tmp file exsiting, it is left before, just delete it.
-        if (IsFileExisting(wal_tmp_file_path)) {
-            if (!std::remove(wal_tmp_file_path.c_str())) {
-                spdlog::error("[LsmKvStore][SwitchMemTableAndWal] fail to delete walTmp: {}", wal_tmp_file_path);
-                throw "fail to delete WAL_TMP";
-            }
+        if (!DeleteFile(wal_tmp_file_path)) {
+            spdlog::error("[LsmKvStore][RenameWALToWALTMP] fail to delete walTmp: {}", wal_tmp_file_path);
+            throw "fail to delete WAL_TMP";
         }
         if (std::rename(this->wal_file_path_.c_str(), wal_tmp_file_path.c_str())) {
-            spdlog::error("[LsmKvStore][switchMemTableAndWal] fail to rename walTmp: {} to {}", wal_file_path_, wal_tmp_file_path);
+            spdlog::error("[LsmKvStore][RenameWALToWALTMP] fail to rename walTmp: {} to {}", wal_file_path_, wal_tmp_file_path);
             throw "fail to rename WAL to WAL_TMP";
         }
-        spdlog::info("[LsmKvStore][SwitchMemTableAndWal] rename walTmp: {} to {}", wal_file_path_, wal_tmp_file_path);
+        spdlog::info("[LsmKvStore][RenameWALToWALTMP] rename walTmp: {} to {}", wal_file_path_, wal_tmp_file_path);
         // create a new wal file
         OpenFileAndCreateOneWhenNotExist(wal_file_stream_ptr_, wal_file_path_);
     }
+
     /**
      * @description: 1. flush immutableMemTable to brand-new file, created in the form of dataDir + system time + table_suffix
      * @discription: 2. add the ssTable structure to list
      * @discription: 3. delete old immutableMemTable and WAL_TMP
      * @return {*}
      */
-    void FlushToSSD() {
+    std::shared_ptr<SsTable> FlushToSSD() {
         std::string ss_table_path = data_dir_path_ + "/" + GetSystemTimeInMills() + TABLE_SUFFIX;
         std::shared_ptr<SsTable> ss_table = SsTable::InitFromMemTableAndFlushToSSD(immutable_mem_table_, partition_size_, ss_table_path);
-        
-        ss_tables_->insert(ss_tables_->begin(), ss_table);
 
-        immutable_mem_table_ = nullptr;
+        return ss_table;
+    }
+
+    bool DeleteWalTmp() {
         std::string old_wal_tmp = data_dir_path_ + "/" + WAL_TMP;
-        if (IsFileExisting(old_wal_tmp)) {
-            if (std::remove(old_wal_tmp.c_str())) {
-                spdlog::error("[LsmKvStore][FlushToSsTable] fail to delete old_wal_tmp: {}", old_wal_tmp);
-            }
-        }
+        return DeleteFile(old_wal_tmp);
     }
 
     void ExecuteCommand(std::shared_ptr<Command> command) {
@@ -242,7 +245,7 @@ class LsmKvStore : public KvStore {
 
             // if memtable is at threshold, make it consistent to SSD
             if (mem_table_->Size() > mem_threshold_) {
-                FlushSSTableAndWal();
+                PersistCommands();
             }
         } catch (std::exception &error) {
             spdlog::error("[LsmKvStore][ExecuteCommand] error: {}", error.what());
@@ -250,13 +253,22 @@ class LsmKvStore : public KvStore {
         }
     }
 
-    void FlushSSTableAndWal() {
+    void PersistCommands() {
         try {
             // memTable -> immutableMemTable
             // new memTable
-            SwitchMemTableAndWal();
+            DegradeMemTableToImmutableMemTable();
+            // wal -> wal_tmp
+            // new wal
+            RenameWALToWALTMP();
             // todo: make the flush action to async
-            FlushToSSD();
+            std::shared_ptr<SsTable> ss_table = FlushToSSD();
+            // add new SSTable to kv-store's list
+            ss_tables_->insert(ss_tables_->begin(), ss_table);
+            // delete immutableMemTable
+            immutable_mem_table_ = nullptr;
+            // delete wal_tmp
+            DeleteWalTmp();
         } catch (std::exception &error) {
             spdlog::error("[LsmKvStore][flushSSTableAndWal] error: {}", error.what());
             throw;

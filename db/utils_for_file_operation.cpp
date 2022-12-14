@@ -114,3 +114,14 @@ bool DeleteFilesInDir(const char *path) {
     }
     return 0;
 }
+
+bool DeleteFile(std::string file_path) {
+    // If there is wal_tmp file exsiting, it is left before, just delete it.
+    if (IsFileExisting(file_path)) {
+        if (!std::remove(file_path.c_str())) {
+            spdlog::error("[DeleteFile] fail to delete walTmp: {}", file_path);
+            return false;
+        }
+    }
+    return true;
+}

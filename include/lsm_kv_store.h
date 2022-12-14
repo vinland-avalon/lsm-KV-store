@@ -213,7 +213,9 @@ class LsmKvStore : public KvStore {
      */
     void FlushToSSD() {
         std::string ss_table_path = data_dir_path_ + "/" + GetSystemTimeInMills() + TABLE_SUFFIX;
-        std::shared_ptr<SsTable> ssTable = SsTable::InitFromMemTableAndFlushToSSD(immutable_mem_table_, partition_size_, ss_table_path);
+        std::shared_ptr<SsTable> ss_table = SsTable::InitFromMemTableAndFlushToSSD(immutable_mem_table_, partition_size_, ss_table_path);
+        
+        ss_tables_->insert(ss_tables_->begin(), ss_table);
 
         immutable_mem_table_ = nullptr;
         std::string old_wal_tmp = data_dir_path_ + "/" + WAL_TMP;

@@ -21,8 +21,8 @@ int main(int, char **) {
     // std::cout << "in ./src/utils_for_time_operation.h, getSystemTimeInMills:" << getSystemTimeInMills()
     //           << ", j['Hello'] = " << j["hello"] << std::endl;
     // spdlog::info("Welcome to spdlog!!!!!");
-    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
-    store->Set("key1", "300");
-    spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
-    spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
+    // auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    // store->Set("key1", "300");
+    // spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
+    // spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
 }

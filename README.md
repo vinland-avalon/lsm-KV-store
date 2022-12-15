@@ -10,7 +10,7 @@
 -->
 <h1 align="center">
   <br>
-  LSM-KV-STORE (IN DEVELOPMENT)
+  LSM-KV-STORE
   <br>
 </h1>
 

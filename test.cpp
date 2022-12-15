@@ -36,7 +36,7 @@ TEST(PreWork, ClearDataDirectory){
 }
 
 TEST(WholeWorkingFlow, SetKey1){
-    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     store->Set("key1", "300");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
     spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
@@ -45,7 +45,7 @@ TEST(WholeWorkingFlow, SetKey1){
 }
 
 TEST(WholeWorkingFlow, NotSetKey1ButGetItFromSSD){
-    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     // store->Set("key1", "300");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
     spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
@@ -54,7 +54,7 @@ TEST(WholeWorkingFlow, NotSetKey1ButGetItFromSSD){
 }
 
 TEST(WholeWorkingFlow, AgainSetKey1){
-    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     store->Set("key1", "400");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
     spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
@@ -63,7 +63,7 @@ TEST(WholeWorkingFlow, AgainSetKey1){
 }
 
 TEST(WholeWorkingFlow, AgainNotSetKey1ButGetItFromSSD){
-    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     // store->Set("key1", "400");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
     spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
@@ -72,7 +72,7 @@ TEST(WholeWorkingFlow, AgainNotSetKey1ButGetItFromSSD){
 }
 
 TEST(WholeWorkingFlow, RemoveKey1){
-    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     store->Remove("key1");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
     spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
@@ -81,7 +81,7 @@ TEST(WholeWorkingFlow, RemoveKey1){
 }
 
 TEST(WholeWorkingFlow, NotRemoveKey1ButGetItFromSSD){
-    auto store = std::shared_ptr<LsmKvStore>(new LsmKvStore("./data", 2, 1));
+    auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     // store->Remove("key1");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
     spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));

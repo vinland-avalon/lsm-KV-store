@@ -19,7 +19,7 @@
 
 class SkipListMemTable : public MemTable {
   public:
-    SkipListMemTable(int max_level) {
+    SkipListMemTable(int max_level = 10) {
         max_level_ = max_level;
         skip_list_ = std::shared_ptr<SkipList<std::string, std::shared_ptr<Command>>>(new SkipList<std::string, std::shared_ptr<Command>>(max_level_));
     }

@@ -27,6 +27,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
+template<typename MT>
 class LsmKvStore : public KvStore {
   public:
     const std::string TABLE_SUFFIX = ".table";
@@ -39,8 +40,8 @@ class LsmKvStore : public KvStore {
         try {
             rw_lock_ptr_ = new std::shared_mutex();
             ss_tables_ = new std::list<std::shared_ptr<SsTable>>();
-            // mem_table_ = std::shared_ptr<MemTable>(new RedBlackTreeMemTable());
-            mem_table_ = std::shared_ptr<MemTable>(new SkipListMemTable(10));
+            // mem_table_ = std::shared_ptr<MT>(new RedBlackTreeMT());
+            mem_table_ = std::shared_ptr<MT>(new MT());
             if (!IsSolidDirectory(data_dir_path_)) {
                 spdlog::warn("[LsmKvStore][constructor] dataDir: {} is invalid", this->data_dir_path_);
                 // std::string will cast to std::exception
@@ -154,8 +155,8 @@ class LsmKvStore : public KvStore {
     }
 
   private:
-    std::shared_ptr<MemTable> mem_table_;
-    std::shared_ptr<MemTable> immutable_mem_table_;
+    std::shared_ptr<MT> mem_table_;
+    std::shared_ptr<MT> immutable_mem_table_;
 
     // std::list<SsTable *> *ssTables;
     std::list<std::shared_ptr<SsTable>> *ss_tables_;
@@ -191,7 +192,7 @@ class LsmKvStore : public KvStore {
     void DegradeMemTableToImmutableMemTable() {
         // switch MemTable
         immutable_mem_table_ = mem_table_;
-        mem_table_ = std::shared_ptr<MemTable>(new SkipListMemTable(10));
+        mem_table_ = std::shared_ptr<MT>(new MT());
     }
     void RenameWALToWALTMP() {
         // switch WAL file

@@ -9,6 +9,9 @@
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved. 
  */
 
+// todo: extract a comparator as template or take cal a "score"
+// todo: embed its iterator
+
 #ifndef _SKIP_LIST_H_
 #define _SKIP_LIST_H_
 
@@ -96,7 +99,7 @@ template <typename K, typename V>
 class SkipList {
 
 public: 
-    SkipList(int);
+    explicit SkipList(int);
     ~SkipList();
     int get_random_level();
     Node<K, V>* create_node(K, V, int);

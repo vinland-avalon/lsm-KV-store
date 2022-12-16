@@ -14,7 +14,6 @@
 
 #include "command.h"
 #include "skip_list.h"
-#include "skip_list_iter.h"
 #include <string>
 
 class SkipListMemTable : public MemTable {
@@ -22,7 +21,9 @@ class SkipListMemTable : public MemTable {
     SkipListMemTable(int max_level = 10) {
         max_level_ = max_level;
         skip_list_ = std::shared_ptr<SkipList<std::string, std::shared_ptr<Command>>>(new SkipList<std::string, std::shared_ptr<Command>>(max_level_));
+        iter_ = SkipList<std::string, std::shared_ptr<Command>>::Iterator(skip_list_.get());
     }
+
     std::shared_ptr<Command> Get(std::string key) const {
         return skip_list_->search_element(key);
     }
@@ -40,13 +41,14 @@ class SkipListMemTable : public MemTable {
     // features about iterator
     // since they are only used when flushing immmutable memtable to SSD, it is not necessary to consider concurrency
     void ReachBegin() {
-        iter_ = ListIter<Node<std::string, std::shared_ptr<Command>>>(skip_list_->front());
+        iter_.seekFirst();
     }
     std::shared_ptr<Command> Curr() const {
-        if (iter_ == nullptr) {
+        auto node_p = iter_.get();
+        if (node_p == nullptr) {
             return nullptr;
         }
-        return iter_.Iter->get_value();
+        return node_p->get_value();
     }
     void Next() {
         ++iter_;
@@ -55,7 +57,7 @@ class SkipListMemTable : public MemTable {
   private:
     std::shared_ptr<SkipList<std::string, std::shared_ptr<Command>>> skip_list_ = nullptr;
     int max_level_;
-    ListIter<Node<std::string, std::shared_ptr<Command>>> iter_;
+    SkipList<std::string, std::shared_ptr<Command>>::Iterator iter_;
 };
 
 #endif

@@ -19,7 +19,9 @@
 using json = nlohmann::json;
 
 // enum enumCommand {"RM","GET","SET"};
-
+// todo: instead of JSON to represent a command, use slice and different keys
+// for example, in LevelDB:
+// key_length, user_key, type, sequence, value_length, value
 class Command {
   public:
     Command(std::string _type, std::string _key) : type(_type), key(_key) {}

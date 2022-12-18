@@ -24,18 +24,18 @@ using json = nlohmann::json;
 // key_length, user_key, type, sequence, value_length, value
 // todo: batch_command
 
-enum CommandType{
+enum CommandType {
     SetType = 0,
     RemoveType = 1
 };
-enum CommandFieldJson{
-  TypeField = 0,
-  KeyField = 1,
-  ValueField = 2
+enum CommandFieldJson {
+    TypeField = 0,
+    KeyField = 1,
+    ValueField = 2
 };
 class Command {
   public:
-    static Command* InitSetCommand(std::string key, std::string value){
+    static Command *InitSetCommand(std::string key, std::string value) {
         auto command = new Command();
         command->type_ = SetType;
         command->key_ = key;
@@ -46,21 +46,21 @@ class Command {
         command->command_string_ = command->command_json_.dump();
         return command;
     }
-    static Command* InitRemoveCommand(std::string key){
+    static Command *InitRemoveCommand(std::string key) {
         auto command = new Command();
-        command->type_ = SetType;
+        command->type_ = RemoveType;
         command->key_ = key;
         command->command_json_[TypeField] = command->GetType();
         command->command_json_[KeyField] = command->GetKey();
         command->command_string_ = command->command_json_.dump();
         return command;
     }
-    
+
     json ToJSON() const {
-      return command_json_;
+        return command_json_;
     }
     std::string ToString() const {
-      return command_string_;
+        return command_string_;
     }
     /**
      * @description:

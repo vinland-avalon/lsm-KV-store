@@ -22,59 +22,69 @@ using json = nlohmann::json;
 // todo: instead of JSON to represent a command, use slice and different keys
 // for example, in LevelDB:
 // key_length, user_key, type, sequence, value_length, value
+// todo: batch_command
+
+enum CommandType{
+    SetType = 0,
+    RemoveType = 1
+};
+enum CommandFieldJson{
+  TypeField = 0,
+  KeyField = 1,
+  ValueField = 2
+};
 class Command {
   public:
-    Command(std::string _type, std::string _key) : type(_type), key(_key) {}
-    std::string GetKey() const {
-        return this->key;
-    };
-    virtual json ToJSON() const = 0;
+    static Command* InitSetCommand(std::string key, std::string value){
+        auto command = new Command();
+        command->type_ = SetType;
+        command->key_ = key;
+        command->value_ = value;
+        command->command_json_[TypeField] = command->GetType();
+        command->command_json_[KeyField] = command->GetKey();
+        command->command_json_[ValueField] = command->GetValue();
+        command->command_string_ = command->command_json_.dump();
+    }
+    static Command* InitRemoveCommand(std::string key){
+        auto command = new Command();
+        command->type_ = SetType;
+        command->key_ = key;
+        command->command_json_[TypeField] = command->GetType();
+        command->command_json_[KeyField] = command->GetKey();
+        command->command_string_ = command->command_json_.dump();
+    }
+    
+    json ToJSON() const {
+      return command_json_;
+    }
+    std::string ToString() const {
+      return command_string_;
+    }
     /**
      * @description:
      * @param {fstream} *f
      * @return long: the size of serialized command
      */
     long WriteCommandToFile(std::fstream *f) const {
-        std::string command_string = this->ToJSON().dump();
-        WriteStringToFile(command_string, f);
-        return command_string.size();
+        WriteStringToFile(command_string_, f);
+        return command_string_.size();
     }
-    std::string GetType() const {
-        return this->type;
+    CommandType GetType() const {
+        return type_;
     }
-
-  protected:
-    std::string type;
-    std::string key;
-};
-
-class RmCommand : public Command {
-  public:
-    RmCommand(std::string _type, std::string _key) : Command(_type, _key) {}
-    json ToJSON() const {
-        json record;
-        record["key"] = key;
-        record["type"] = type;
-        return record;
-    }
-};
-
-class SetCommand : public Command {
-  public:
-    SetCommand(std::string _type, std::string _key, std::string _value) : Command(_type, _key), value(_value) {}
-    json ToJSON() const {
-        json record;
-        record["key"] = key;
-        record["type"] = type;
-        record["value"] = value;
-        return record;
+    std::string GetKey() const {
+        return key_;
     }
     std::string GetValue() const {
-        return this->value;
+        return value_;
     }
 
   private:
-    std::string value;
+    CommandType type_;
+    std::string key_;
+    std::string value_;
+    json command_json_;
+    std::string command_string_;
 };
 
 #endif

@@ -44,6 +44,7 @@ class Command {
         command->command_json_[KeyField] = command->GetKey();
         command->command_json_[ValueField] = command->GetValue();
         command->command_string_ = command->command_json_.dump();
+        return command;
     }
     static Command* InitRemoveCommand(std::string key){
         auto command = new Command();
@@ -52,6 +53,7 @@ class Command {
         command->command_json_[TypeField] = command->GetType();
         command->command_json_[KeyField] = command->GetKey();
         command->command_string_ = command->command_json_.dump();
+        return command;
     }
     
     json ToJSON() const {

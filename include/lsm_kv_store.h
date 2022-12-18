@@ -94,7 +94,7 @@ class LsmKvStore : public KvStore {
 
     void Set(std::string key, std::string value) {
         try {
-            auto command = std::shared_ptr<Command>(InitSetCommand(SetType, key, value));
+            auto command = std::shared_ptr<Command>(Command::InitSetCommand(key, value));
             ExecuteCommand(command);
         } catch (std::exception &error) {
             // the toppest function, so won't throw again
@@ -104,7 +104,7 @@ class LsmKvStore : public KvStore {
 
     void Remove(std::string key) {
         try {
-            auto command = std::shared_ptr<Command>(InitRemoveCommand(RemoveType, key));
+            auto command = std::shared_ptr<Command>(Command::InitRemoveCommand(key));
             ExecuteCommand(command);
         } catch (std::exception &error) {
             // the toppest function, so won't throw again

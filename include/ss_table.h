@@ -233,7 +233,7 @@ class SsTable {
      */
     void WriteToSSDandClearAndAppendSparseIndex(json *commands) {
         spdlog::info("[SsTable][writeToSSDandClearAndAppendSparseIndex] write commands: {}", commands->dump());
-        std::string key = (*(commands->begin()))["key"];
+        std::string key = (*(commands->begin()))[KeyField];
         long start = table_file_stream_.tellp();
 
         WriteStringToFile(commands->dump(), &table_file_stream_);

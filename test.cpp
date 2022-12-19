@@ -83,6 +83,7 @@ TEST(WholeWorkingFlow, RemoveKey1){
 TEST(WholeWorkingFlow, NotRemoveKey1ButGetItFromSSD){
     auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     // store->Remove("key1");
+    store->Get("key1");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
     spdlog::info("[Test-Result]: try to get key2's value: {}", store->Get("key2"));
     EXPECT_EQ(store->Get("key1"), "");

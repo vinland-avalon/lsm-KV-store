@@ -94,7 +94,7 @@ class LsmKvStore : public KvStore {
 
     void Set(std::string key, std::string value) {
         try {
-            auto command = std::shared_ptr<SetCommand>(new SetCommand("SET", key, value));
+            auto command = std::shared_ptr<Command>(Command::InitSetCommand(key, value));
             ExecuteCommand(command);
         } catch (std::exception &error) {
             // the toppest function, so won't throw again
@@ -104,7 +104,7 @@ class LsmKvStore : public KvStore {
 
     void Remove(std::string key) {
         try {
-            auto command = std::shared_ptr<RmCommand>(new RmCommand("RM", key));
+            auto command = std::shared_ptr<Command>(Command::InitRemoveCommand(key));
             ExecuteCommand(command);
         } catch (std::exception &error) {
             // the toppest function, so won't throw again
@@ -132,11 +132,11 @@ class LsmKvStore : public KvStore {
         // check the "get" result and return value;
         if (command == nullptr)
             return "";
-        else if (command->GetType() == "SET") {
-            std::string value = (std::dynamic_pointer_cast<SetCommand>(command))->GetValue();
+        else if (command->GetType() == SetType) {
+            std::string value = command->GetValue();
             spdlog::info("[LsmKvStore][Get] get {} for key: {}", value, key);
             return value;
-        } else if (command->GetType() == "RM") {
+        } else if (command->GetType() == RemoveType) {
             return "";
         }
         return "";
@@ -233,7 +233,7 @@ class LsmKvStore : public KvStore {
     void ExecuteCommand(std::shared_ptr<Command> command) {
         try {
             // todo: take the advantage of thread pool
-            std::string command_string = command->ToJSON().dump();
+            std::string command_string = command->ToString();
             long len = command_string.size();
             std::unique_lock<std::shared_mutex> w_lock(*rw_lock_ptr_);
 

@@ -245,7 +245,7 @@ class LsmKvStore : public KvStore {
             mem_table_->Set(command->GetKey(), command);
 
             // if memtable is at threshold, make it consistent to SSD
-            if (mem_table_->Size() > mem_threshold_) {
+            if (mem_table_->Size() >= mem_threshold_) {
                 PersistCommands();
             }
         } catch (std::exception &error) {

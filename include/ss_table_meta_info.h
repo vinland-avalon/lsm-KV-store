@@ -23,6 +23,8 @@ class TableMetaInfo {
     long index_start_;
     long index_len_;
     long partition_size_;
+    long filter_start_;
+    long filter_len_;
 
   public:
     /**
@@ -37,6 +39,8 @@ class TableMetaInfo {
         (*file).write((const char *)&index_start_, sizeof(index_start_));
         (*file).write((const char *)&index_len_, sizeof(index_len_));
         (*file).write((const char *)&version_, sizeof(version_));
+        (*file).write((const char *)&filter_start_, sizeof(filter_start_));
+        (*file).write((const char *)&filter_len_, sizeof(filter_len_));
         file->clear();
     }
     /**
@@ -53,10 +57,12 @@ class TableMetaInfo {
         (*file).read((char *)&index_start_, sizeof(index_start_));
         (*file).read((char *)&index_len_, sizeof(index_len_));
         (*file).read((char *)&version_, sizeof(version_));
+        (*file).read((char *)&filter_start_, sizeof(filter_start_));
+        (*file).read((char *)&filter_len_, sizeof(filter_len_));
     }
 
     long CalLenOfMetaInfo() const {
-        return sizeof(long) * 6;
+        return sizeof(long) * 8;
     }
     // TableMetaInfo(std::fstream* file){}
     // TableMetaInfo(){}
@@ -89,6 +95,18 @@ class TableMetaInfo {
     }
     void SetIndexStart(long index_start) {
         index_start_ = index_start;
+    }
+    void SetFilterStart(long filter_start) {
+        filter_start_ = filter_start;
+    }
+    long GetFilterStart() const {
+        return filter_start_;
+    }
+    void SetFilterLen(long filter_len) {
+        filter_len_ = filter_len;
+    }
+    long GetFilterLen() const {
+        return filter_len_;
     }
 };
 

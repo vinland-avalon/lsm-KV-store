@@ -13,6 +13,7 @@
 #define _SKIP_LIST_MEM_TABLE_H_
 
 #include "command.h"
+#include "mem_table.h"
 #include "skip_list.h"
 #include <string>
 

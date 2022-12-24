@@ -12,6 +12,7 @@
 #ifndef _SS_TABLE_H_
 #define _SS_TABLE_H_
 
+#include "bloom_filter.h"
 #include "command.h"
 #include "mem_table.h"
 #include "ss_table_meta_info.h"
@@ -65,6 +66,12 @@ class SsTable {
      * @return {*}
      */
     std::shared_ptr<Command> Query(std::string key) {
+        // check filter table
+        if (!BloomFilter::KeyMayExist(key, filter_table_)) {
+            spdlog::info("[SSDTable][Query] after looking up filter_table_, key: {} not exist", key);
+            return nullptr;
+        }
+
         // start, len
         std::pair<long, long> lower_bound_block(-1, -1);
         for (auto it = sparse_index_->begin(); it != sparse_index_->end(); it++) {
@@ -105,6 +112,7 @@ class SsTable {
     // sparse_index_:{ key: {start, len}}
     std::shared_ptr<std::map<std::string, std::pair<long, long>>> sparse_index_;
     std::string file_path_;
+    std::string filter_table_;
 
     SsTable(std::string file_path, int partition_size) {
         try {
@@ -129,7 +137,7 @@ class SsTable {
         }
     }
 
-    SsTable(){
+    SsTable() {
         table_meta_info_ = std::shared_ptr<TableMetaInfo>(new TableMetaInfo());
         sparse_index_ = std::shared_ptr<std::map<std::string, std::pair<long, long>>>(new std::map<std::string, std::pair<long, long>>());
     }
@@ -144,6 +152,15 @@ class SsTable {
     void InitFromMemTable(std::shared_ptr<MemTable> mem_table) {
         // calculate metadata
         table_meta_info_->SetCommandsStart(table_file_stream_.tellp());
+
+        // calculate filter
+        std::vector<std::string> keys;
+        mem_table->ReachBegin();
+        while (mem_table->Curr()) {
+            keys.emplace_back(mem_table->Curr()->GetKey());
+            mem_table->Next();
+        }
+        BloomFilter::CalculateFilterTable(keys, &filter_table_);
 
         // flush to SSD, part by part
         json commands;
@@ -175,9 +192,12 @@ class SsTable {
         std::string sparse_index_string = sparse_index_JSON.dump();
         spdlog::info("[SsTable][InitFromMemTable] sparse index: {}", sparse_index_string);
         WriteStringToFile(sparse_index_string, &table_file_stream_);
-        // tableFile.write(sparseIndexString.c_str(), sparseIndexString.size() + 1);
-        // tableFile << sparse_index_;
         table_meta_info_->SetIndexLen(table_file_stream_.tellp() - table_meta_info_->GetIndexStart());
+
+        // save filter_table
+        table_meta_info_->SetFilterStart(table_file_stream_.tellp());
+        WriteStringToFile(filter_table_, &table_file_stream_);
+        table_meta_info_->SetFilterLen(table_file_stream_.tellp() - table_meta_info_->GetFilterStart());
 
         // save metadata
         table_meta_info_->WriteToFile(&table_file_stream_);
@@ -202,21 +222,20 @@ class SsTable {
         table_file_stream_.seekp(0);
         table_file_stream_.seekg(0);
         spdlog::info("[SsTable][ReloadWithGivenSSDFile] initialized an instance, file_path_: {}, metainfo.partition_size: {}", file_path_, table_meta_info_->GetPartitionSize());
-        
+
         // load metadata
         table_meta_info_->ReadFromFile(&(table_file_stream_));
 
-        // load sparse index
+        // load filter table
         char buffer[1000];
+        table_file_stream_.seekg(table_meta_info_->GetFilterStart());
+        table_file_stream_.read(buffer, table_meta_info_->GetFilterLen());
+        filter_table_ = buffer;
+
+        // load sparse index
         table_file_stream_.seekg(table_meta_info_->GetIndexStart());
         table_file_stream_.read(buffer, table_meta_info_->GetIndexLen());
-
-        // std::string sparseIndexString = buffer;
-
         // {"key1":[0,50]}
-        // // std::cout << "lll" << sparseIndexString << std::endl;
-
-        // json tmpJSONcommands = json::parse(sparseIndexString);
         json tmpJSONcommands = json::parse(buffer);
         spdlog::info("[SsTable][initFromFile] reload sparse index {}", tmpJSONcommands.dump());
 

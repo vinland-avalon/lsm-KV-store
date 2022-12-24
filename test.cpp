@@ -9,13 +9,14 @@
  * Copyright (c) 2022 by BohanWu 819186192@qq.com, All Rights Reserved.
  */
 
-#include "utils_for_time_operation.h"
+#include "bloom_filter.h"
+#include "lsm_kv_store.h"
+#include "spdlog/spdlog.h"
 #include "utils_for_file_operation.h"
+#include "utils_for_time_operation.h"
+#include <gtest/gtest.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <gtest/gtest.h>
-#include "spdlog/spdlog.h"
-#include "lsm_kv_store.h"
 using json = nlohmann::json;
 
 TEST(FooTest, test0) {
@@ -23,7 +24,7 @@ TEST(FooTest, test0) {
     EXPECT_EQ("a", "a");
 }
 
-TEST(UtilsForFileOperation, test){
+TEST(UtilsForFileOperation, test) {
     EXPECT_EQ(IsSolidDirectory("."), true);
     EXPECT_EQ(IsSolidDirectory("invalid_dir"), false);
     EXPECT_GT(GetFilenamesInDirectory(".").size(), 0);
@@ -31,11 +32,23 @@ TEST(UtilsForFileOperation, test){
     EXPECT_EQ(IsFileExisting("invalid_file"), false);
 }
 
-TEST(PreWork, ClearDataDirectory){
+TEST(PreWork, ClearDataDirectory) {
     DeleteFilesInDir("./data");
 }
 
-TEST(WholeWorkingFlow, SetKey1){
+TEST(BloomFilter, test) {
+    std::string bloom_table;
+    std::vector<std::string> keys;
+    std::string key1 = "key1";
+    std::string key2 = "key2";
+    keys.push_back(key1);
+    BloomFilter::CalculateFilterTable(keys, &bloom_table);
+    spdlog::info("[Test-Variable] BloomFilter bloom_table: {}", bloom_table);
+    EXPECT_EQ(BloomFilter::KeyMayExist(key1, bloom_table), true);
+    EXPECT_EQ(BloomFilter::KeyMayExist(key2, bloom_table), false);
+}
+
+TEST(WholeWorkingFlow, SetKey1) {
     auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     store->Set("key1", "300");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
@@ -44,7 +57,7 @@ TEST(WholeWorkingFlow, SetKey1){
     EXPECT_EQ(store->Get("key2"), "");
 }
 
-TEST(WholeWorkingFlow, NotSetKey1ButGetItFromSSD){
+TEST(WholeWorkingFlow, NotSetKey1ButGetItFromSSD) {
     auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     // store->Set("key1", "300");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
@@ -53,7 +66,7 @@ TEST(WholeWorkingFlow, NotSetKey1ButGetItFromSSD){
     EXPECT_EQ(store->Get("key2"), "");
 }
 
-TEST(WholeWorkingFlow, AgainSetKey1){
+TEST(WholeWorkingFlow, AgainSetKey1) {
     auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     store->Set("key1", "400");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
@@ -62,7 +75,7 @@ TEST(WholeWorkingFlow, AgainSetKey1){
     EXPECT_EQ(store->Get("key2"), "");
 }
 
-TEST(WholeWorkingFlow, AgainNotSetKey1ButGetItFromSSD){
+TEST(WholeWorkingFlow, AgainNotSetKey1ButGetItFromSSD) {
     auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     // store->Set("key1", "400");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
@@ -71,7 +84,7 @@ TEST(WholeWorkingFlow, AgainNotSetKey1ButGetItFromSSD){
     EXPECT_EQ(store->Get("key2"), "");
 }
 
-TEST(WholeWorkingFlow, RemoveKey1){
+TEST(WholeWorkingFlow, RemoveKey1) {
     auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     store->Remove("key1");
     spdlog::info("[Test-Result]: try to get key1's value: {}", store->Get("key1"));
@@ -80,7 +93,7 @@ TEST(WholeWorkingFlow, RemoveKey1){
     EXPECT_EQ(store->Get("key2"), "");
 }
 
-TEST(WholeWorkingFlow, NotRemoveKey1ButGetItFromSSD){
+TEST(WholeWorkingFlow, NotRemoveKey1ButGetItFromSSD) {
     auto store = std::shared_ptr<LsmKvStore<SkipListMemTable>>(new LsmKvStore<SkipListMemTable>("./data", 2, 1));
     // store->Remove("key1");
     store->Get("key1");
@@ -89,5 +102,3 @@ TEST(WholeWorkingFlow, NotRemoveKey1ButGetItFromSSD){
     EXPECT_EQ(store->Get("key1"), "");
     EXPECT_EQ(store->Get("key2"), "");
 }
-
-

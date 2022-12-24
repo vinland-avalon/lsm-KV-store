@@ -26,15 +26,16 @@
 
 class BloomFilter {
   public:
-    static void CalculateFilterTable(MemTable &immutable_memtbale, std::string *dst) {
+    static void CalculateFilterTable(std::vector<std::string> &keys, std::string *dst) {
         dst->resize(sizeof(size_t), 0);
 
         char *array = &(*dst)[0];
         int char_num = dst->size() / sizeof(char);
 
+        std::hash<std::string> hash_algorithm_;
         size_t hash_table;
-        for (immutable_memtbale.ReachBegin(); immutable_memtbale.Curr(); immutable_memtbale.Next()) {
-            size_t hash_code = hash_algorithm_(immutable_memtbale.Curr()->GetKey());
+        for (auto &key : keys) {
+            size_t hash_code = hash_algorithm_(key);
             char *hash_code_byte = (char *)&hash_code;
             for (int i = 0; i < char_num; i++) {
                 array[i] |= hash_code_byte[i];
@@ -49,11 +50,12 @@ class BloomFilter {
         char *array = &(filter)[0];
         int char_num = filter.size() / sizeof(char);
 
+        std::hash<std::string> hash_algorithm_;
         size_t hash_code = hash_algorithm_(key);
         char *hash_code_byte = (char *)&hash_code;
 
         for (int i = 0; i < char_num; i++) {
-            if ((array[i] ^ hash_code_byte[i]) != hash_code_byte[i]) {
+            if ((array[i] & hash_code_byte[i]) != hash_code_byte[i]) {
                 return false;
             }
         }
@@ -62,7 +64,6 @@ class BloomFilter {
     }
 
   private:
-    static std::hash<std::string> hash_algorithm_;
 };
 
 #endif

@@ -2,3 +2,21 @@ ssTable:
 
 name format: time.table
 for example: 15432536232646.table
+
+data structure:
+data + sparse index + bloom filter + metadata
+    data: {partition 1} {partition 2} {partition 3} ...
+        partition: {command 1, command 2, command 3} ....
+            command: key: {KeyField: key, TypeField: type, [ValueField: value]}
+    sparse index: {parition 1 index, partition 2 index, partition 3 index}
+        partition: key: {"len": len, "start": start}
+    bloom filter: 010001011001 (fixed length so far)
+    metadata: 
+        long version_;
+        long commands_start_;
+        long commands_len_;
+        long index_start_;
+        long index_len_;
+        long partition_size_;
+        long filter_start_;
+        long filter_len_;

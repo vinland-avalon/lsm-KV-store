@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include <vector>
 
+// todo: flock for one-process store engine, like LevelDB
+
 bool IsSolidDirectory(const std::string dir_path) {
     // check if dir_name is a valid dir
     struct stat s;

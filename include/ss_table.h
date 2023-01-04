@@ -25,6 +25,7 @@
 #include <string>
 using json = nlohmann::json;
 // data + sparse index + metainfo
+// todo: compaction
 
 class SsTable {
   public:

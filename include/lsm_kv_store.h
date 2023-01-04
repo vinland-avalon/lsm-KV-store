@@ -27,7 +27,10 @@
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
-template<typename MT>
+
+// todo: wal crc checksum
+
+template <typename MT>
 class LsmKvStore : public KvStore {
   public:
     const std::string TABLE_SUFFIX = ".table";

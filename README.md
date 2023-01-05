@@ -28,7 +28,7 @@
 * Memtables, including an active memtable and an immutable memtable
   - implemented both in skip-list and red-black-tree
 * Sorted-string-table
-  - sparse index + bloom filter
+  -  bloom filter + prefix compression (in development) + restart point  
 * Linux/C++ 
 * supported by CMake
 * one-layer sstable so far

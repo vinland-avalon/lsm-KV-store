@@ -26,10 +26,9 @@
 ## Key Features
 
 * Memtables, including an active memtable and an immutable memtable
-  - implemented both in skip-list (done) and red-black-tree (done)
+  - implemented both in skip-list and red-black-tree
 * Sorted-string-table
-  - implemented both in B+ tree (in development)
-  - and sparse index (done) + bloom filter (in development)
+  - sparse index + bloom filter
 * Linux/C++ 
 * supported by CMake
 * one-layer sstable so far

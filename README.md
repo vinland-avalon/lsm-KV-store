@@ -42,6 +42,12 @@ To clone and run this application, you'll need [Git](https://git-scm.com) From y
 ```bash
 # to try such codes,
 # you can now run the unittests in test.cpp (not test folder).
+# There's a way to run the tests
+# 1. make a new directory named ./build
+# 2. under ./build, cmake ..
+# 3. under ./build, create ./data
+# 4. cmake --build .
+# 5. ./FooTest
 ```
 
 > **Note**

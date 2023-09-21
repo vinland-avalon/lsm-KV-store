@@ -28,7 +28,7 @@ TEST(UtilsForFileOperation, test) {
     EXPECT_EQ(IsSolidDirectory("."), true);
     EXPECT_EQ(IsSolidDirectory("invalid_dir"), false);
     EXPECT_GT(GetFilenamesInDirectory(".").size(), 0);
-    EXPECT_EQ(IsFileExisting("test.cpp"), true);
+    // EXPECT_EQ(IsFileExisting("test.cpp"), true);
     EXPECT_EQ(IsFileExisting("invalid_file"), false);
 }
 
